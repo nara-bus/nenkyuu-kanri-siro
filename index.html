@@ -993,7 +993,23 @@ async function doExport() {
   };
   const json = JSON.stringify(appData, null, 2);
 
-  // <a download> でダウンロードフォルダへ保存
+  // HTTPS環境（GitHub Pages等）はフォルダ選択ダイアログ
+  if (window.showSaveFilePicker && location.protocol === 'https:') {
+    try {
+      const fh = await window.showSaveFilePicker({
+        suggestedName: fname,
+        types: [{ description: 'JSONファイル', accept: { 'application/json': ['.json'] } }]
+      });
+      const writable = await fh.createWritable();
+      await writable.write(json);
+      await writable.close();
+      return;
+    } catch(e) {
+      if (e.name === 'AbortError') return; // キャンセル
+    }
+  }
+
+  // HTTP環境（127.0.0.1等）はダウンロードフォルダへ保存
   const blob = new Blob([json], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
