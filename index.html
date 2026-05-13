@@ -1302,9 +1302,26 @@ function _applyFile(file) {
     const reader = new FileReader();
     reader.onload = ev => {
       try {
-        const data = JSON.parse(ev.target.result);
-        if (!data || !data.settings) throw new Error('不正なデータ');
-        SETTINGS         = Object.assign({}, DEFAULT_SETTINGS, data.settings);
+        const raw = ev.target.result;
+        const data = JSON.parse(raw);
+        if (!data || typeof data !== 'object') throw new Error('不正なデータ');
+
+        let settingsObj = null;
+
+        if (data.settings && typeof data.settings === 'object') {
+          // 新形式: { settings: {...}, diaOverrides: {...}, ... }
+          settingsObj = data.settings;
+        } else if (data.baseDate !== undefined || data.baseDia !== undefined) {
+          // 旧形式: settings の内容が直接トップレベルにある
+          settingsObj = data;
+        } else if (data.cachedAt !== undefined && data.settings === undefined) {
+          // キャッシュ形式の可能性（settings が欠けている）
+          throw new Error('不正なデータ');
+        } else {
+          throw new Error('不正なデータ');
+        }
+
+        SETTINGS         = Object.assign({}, DEFAULT_SETTINGS, settingsObj);
         DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
         SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
         _saveCache(); // 読み込んだ内容をキャッシュに反映
@@ -1313,7 +1330,7 @@ function _applyFile(file) {
         renderSettings();
         showToast('✓ 読み込みました: ' + file.name);
       } catch(e) {
-        showToast('⚠️ ファイル形式が正しくありません');
+        showToast('⚠️ ファイル形式が正しくありません (' + (e.message || 'JSON解析エラー') + ')');
       }
       resolve();
     };
