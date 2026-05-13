@@ -981,7 +981,6 @@ function closeSaveModal() {
 
 async function doExport() {
   const fname = document.getElementById('save-modal-filename').textContent;
-  closeSaveModal();
 
   const appData = {
     version: 1,
@@ -994,9 +993,9 @@ async function doExport() {
   const json = JSON.stringify(appData, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
 
-  // HTTPS環境はフォルダ選択ダイアログ、成功したら必ずここで終了
   if (window.showSaveFilePicker && location.protocol === 'https:') {
-    let saved = false;
+    // showSaveFilePicker のみ。成功・失敗・キャンセル全てここで完結。フォールバックなし。
+    closeSaveModal();
     try {
       const fh = await window.showSaveFilePicker({
         suggestedName: fname,
@@ -1005,15 +1004,14 @@ async function doExport() {
       const writable = await fh.createWritable();
       await writable.write(blob);
       await writable.close();
-      saved = true;
     } catch(e) {
-      if (e.name === 'AbortError') return; // キャンセルは何もしない
-      // それ以外のエラーはフォールバックへ
+      // AbortError=キャンセル、その他=エラー。どちらもフォールバックしない。
     }
-    if (saved) return; // 成功していたら絶対にここで終了
+    return; // ← ここで必ず終了。<a download> は絶対に実行しない。
   }
 
-  // HTTP環境 or showSaveFilePicker失敗時のフォールバック
+  // HTTP環境のみ <a download>
+  closeSaveModal();
   const url = URL.createObjectURL(blob);
   const a   = document.createElement('a');
   a.href = url;
