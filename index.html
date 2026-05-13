@@ -1218,6 +1218,9 @@ function showToast(msg, dur=2500) {
   t._tid = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, dur);
 }
 
+// ===== localStorageキー =====
+const LS_DATA = 'shukkin_data_v1'; // データ本体（自動保存用）
+
 // ===== ファイルベース保存・読込 =====
 function _makeFilename() {
   const d = new Date();
@@ -1228,16 +1231,34 @@ function _buildSaveData() {
   return { settings: SETTINGS, diaOverrides: DIA_OVERRIDES, shukkinOverrides: SHUKKIN_OVERRIDES, savedAt: new Date().toISOString() };
 }
 
+// localStorageへ即時バックアップ（データ消失防止）
+function _autoSaveToCache() {
+  try { localStorage.setItem(LS_DATA, JSON.stringify(_buildSaveData())); } catch(e) {}
+}
+
 function _applyLoadedData(data) {
   if (data.settings && typeof data.settings === 'object') {
     SETTINGS = Object.assign({}, DEFAULT_SETTINGS, data.settings);
   }
   DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
   SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
+  _autoSaveToCache();
   _clearDirty();
 }
 
-async function startupLoad() {
+// 起動時処理：localStorageにデータがあれば自動読込、なければファイル選択
+function startupLoad() {
+  try {
+    const cached = localStorage.getItem(LS_DATA);
+    if (cached) {
+      const data = JSON.parse(cached);
+      _applyLoadedData(data);
+      render();
+      renderSettings();
+      return; // モーダルなしで起動
+    }
+  } catch(e) {}
+  // 初回 or キャッシュなし → ファイル選択モーダルを表示
   const lastName = localStorage.getItem(LS_LAST_FILE) || '';
   if (lastName) {
     document.getElementById('startup-last-name').textContent = lastName;
@@ -1270,7 +1291,6 @@ async function startupSelectFile() {
 
 function startupSkip() {
   document.getElementById('startup-modal').style.display = 'none';
-  // デフォルト設定で起動
   SETTINGS = loadSettings();
   DIA_OVERRIDES = {};
   SHUKKIN_OVERRIDES = {};
@@ -1305,7 +1325,7 @@ function handleFileImport(e) {
   _readAndApplyFile(file).then(() => { e.target.value = ''; });
 }
 
-// ファイル保存ボタン（ヘッダーに追加）
+// ファイル保存ボタン
 async function saveToFile() {
   const json = JSON.stringify(_buildSaveData(), null, 2);
   const fname = _makeFilename();
@@ -1316,12 +1336,13 @@ async function saveToFile() {
       const writable = await _currentFileHandle.createWritable();
       await writable.write(json);
       await writable.close();
+      _autoSaveToCache();
       _clearDirty();
       showToast('✓ 上書き保存しました');
       return;
     } catch(e) {
       if (e.name === 'AbortError') return;
-      _currentFileHandle = null; // ハンドル失効 → 新規保存へ
+      _currentFileHandle = null;
     }
   }
 
@@ -1337,6 +1358,7 @@ async function saveToFile() {
       await writable.close();
       _currentFileHandle = fh;
       fh.getFile().then(f => localStorage.setItem(LS_LAST_FILE, f.name));
+      _autoSaveToCache();
       _clearDirty();
       showToast('✓ 保存しました');
       return;
@@ -1350,6 +1372,7 @@ async function saveToFile() {
   const a = document.createElement('a');
   a.href = url; a.download = fname; a.click();
   URL.revokeObjectURL(url);
+  _autoSaveToCache();
   _clearDirty();
   showToast('✓ 保存しました（ダウンロード）');
 }
