@@ -436,6 +436,42 @@
     font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
   }
   .alert-ok:active { background: #2d7e56; }
+
+  /* 保存モーダル */
+  #save-modal-overlay {
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(0,0,0,0.45);align-items:center;justify-content:center;
+    backdrop-filter:blur(3px);
+  }
+  #save-modal-overlay.open { display:flex; }
+  .io-sheet {
+    background:#fff;border-radius:22px;padding:24px 20px 20px;
+    width:calc(100% - 40px);max-width:360px;
+    box-shadow:0 12px 50px rgba(0,0,0,0.25);
+    border:1px solid rgba(200,200,200,0.3);
+  }
+  .io-title {
+    text-align:center;font-size:16px;font-weight:700;color:#1a4a30;
+    margin-bottom:16px;
+  }
+  .io-info {
+    background:rgba(240,255,248,0.8);border-radius:10px;padding:12px 14px;
+    font-size:13px;color:#555;margin-bottom:16px;
+    line-height:1.7;border:1px solid rgba(100,200,150,0.2);
+  }
+  .io-info strong { color:#1a4a30;font-weight:700; }
+  .io-action-row { display:flex;gap:10px; }
+  .io-btn-cancel {
+    flex:1;padding:12px 0;border-radius:12px;border:1px solid #ccc;
+    background:#f5f5f5;color:#555;font-size:15px;font-weight:700;
+    cursor:pointer;font-family:inherit;
+  }
+  .io-btn-ok {
+    flex:1;padding:12px 0;border-radius:12px;border:none;
+    background:#3d9e6e;color:#fff;font-size:15px;font-weight:700;
+    cursor:pointer;font-family:inherit;
+  }
+  .io-btn-ok:active { background:#2d7e56; }
 </style>
 </head>
 <body>
@@ -489,14 +525,13 @@ const DEFAULT_SETTINGS = {
 };
 
 function isDefaultSettings(s) {
-  // ダイヤ番号以外がデフォルト値かチェック
-  return (
-    s.baseDate === DEFAULT_SETTINGS.baseDate &&
-    (s.wakeBeforeLeave   === 0 || s.wakeBeforeLeave   === undefined) &&
-    (s.leaveBeforeWork   === 0 || s.leaveBeforeWork   === undefined) &&
-    (s.arriveBeforeStart === 0 || s.arriveBeforeStart === undefined) &&
-    (s.returnAfterEnd    === 0 || s.returnAfterEnd    === undefined)
-  );
+  // ダイヤ番号(baseDia)以外で、どれか1つでもデフォルト値と同じなら true → 警告
+  if (s.baseDate        === DEFAULT_SETTINGS.baseDate)        return true;
+  if ((s.wakeBeforeLeave   ?? DEFAULT_SETTINGS.wakeBeforeLeave)   === DEFAULT_SETTINGS.wakeBeforeLeave)   return true;
+  if ((s.leaveBeforeWork   ?? DEFAULT_SETTINGS.leaveBeforeWork)   === DEFAULT_SETTINGS.leaveBeforeWork)   return true;
+  if ((s.arriveBeforeStart ?? DEFAULT_SETTINGS.arriveBeforeStart) === DEFAULT_SETTINGS.arriveBeforeStart) return true;
+  if ((s.returnAfterEnd    ?? DEFAULT_SETTINGS.returnAfterEnd)    === DEFAULT_SETTINGS.returnAfterEnd)    return true;
+  return false;
 }
 
 function loadSettings() {
@@ -924,31 +959,50 @@ function applySettings() {
 }
 
 // ========== ファイル保存・読込 ==========
-function saveAppToFile() {
+function _makeSaveFilename() {
   const now = new Date();
-  const y = now.getFullYear();
+  const y  = now.getFullYear();
   const mo = String(now.getMonth()+1).padStart(2,'0');
-  const d = String(now.getDate()).padStart(2,'0');
-  const h = String(now.getHours()).padStart(2,'0');
+  const d  = String(now.getDate()).padStart(2,'0');
+  const h  = String(now.getHours()).padStart(2,'0');
   const mi = String(now.getMinutes()).padStart(2,'0');
-  const filename = `出勤管理_${y}${mo}${d}${h}${mi}.json`;
+  return `出勤管理_${y}${mo}${d}${h}${mi}.json`;
+}
+
+function saveAppToFile() {
+  const fname = _makeSaveFilename();
+  document.getElementById('save-modal-filename').textContent = fname;
+  document.getElementById('save-modal-overlay').classList.add('open');
+}
+
+function closeSaveModal() {
+  document.getElementById('save-modal-overlay').classList.remove('open');
+}
+
+async function doExport() {
+  const fname = document.getElementById('save-modal-filename').textContent;
+  closeSaveModal();
 
   const appData = {
     version: 1,
-    savedAt: now.toISOString(),
+    savedAt: new Date().toISOString(),
     shiftSettings:     localStorage.getItem('shiftSettings')     || null,
     diaOverrides:      localStorage.getItem('diaOverrides')      || null,
     shukkinOverrides:  localStorage.getItem('shukkinOverrides')  || null,
     warningSuppressed: localStorage.getItem('warningSuppressed') || null,
   };
+  const json = JSON.stringify(appData, null, 2);
 
-  const blob = new Blob([JSON.stringify(appData, null, 2)], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  // <a download> でダウンロードフォルダへ保存
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
   a.href = url;
-  a.download = filename;
+  a.download = fname;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function loadAppFromFile() {
@@ -985,18 +1039,14 @@ function loadAppFromFile() {
 
 // ========== 起動時警告 ==========
 function checkDefaultWarning() {
-  const suppressed = localStorage.getItem('warningSuppressed');
   const settingsAreDefault = isDefaultSettings(SETTINGS);
-  
-  if (settingsAreDefault) {
-    // デフォルト値のまま → キャッシュの抑制フラグをクリアして毎回警告
-    localStorage.removeItem('warningSuppressed');
-    showDefaultWarning();
-  } else if (!suppressed) {
-    // 設定済みだが今回まだ警告を見ていない → 警告なし（設定済みなので出さない）
-    // 何もしない
-  }
-  // suppressed があれば今回は警告不要
+  if (!settingsAreDefault) return; // 設定済みなら何もしない
+
+  // デフォルト値のまま：
+  // 同一セッション内で既にOKを押した場合はスキップ（ページリロード等）
+  if (sessionStorage.getItem('warningShownThisSession')) return;
+
+  showDefaultWarning();
 }
 
 function showDefaultWarning() {
@@ -1007,8 +1057,8 @@ function showDefaultWarning() {
 function closeDefaultWarning() {
   const overlay = document.getElementById('default-warning-overlay');
   if (overlay) overlay.classList.add('hidden');
-  // 今回セッションで確認済みとする（デフォルト値のままでも次の起動まで抑制）
-  localStorage.setItem('warningSuppressed', '1');
+  // 同一セッション内で再表示しないようにフラグをセット
+  sessionStorage.setItem('warningShownThisSession', '1');
 }
 
 function updateClock() {
@@ -1297,6 +1347,21 @@ setInterval(updateClock, 30000);
     </div>
   </div>
 </div>
+<!-- 保存モーダル -->
+<div id="save-modal-overlay">
+  <div class="io-sheet">
+    <div class="io-title">💾 データを保存</div>
+    <div class="io-info">
+      <strong id="save-modal-filename"></strong><br>
+      「保存する」を押すと保存先フォルダを選択できます。
+    </div>
+    <div class="io-action-row">
+      <button class="io-btn-cancel" onclick="closeSaveModal()">キャンセル</button>
+      <button class="io-btn-ok" onclick="doExport()">保存する</button>
+    </div>
+  </div>
+</div>
+
 <!-- デフォルト値警告オーバーレイ -->
 <div id="default-warning-overlay" class="alert-overlay hidden">
   <div class="alert-box">
