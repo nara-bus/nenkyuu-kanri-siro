@@ -425,13 +425,19 @@
       <div class="header-label">出勤時間管理</div>
       <div class="header-date" id="headerDate"></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="display:flex;align-items:center;gap:6px;">
       <button id="save-file-btn" onclick="saveToFile()" style="
         background:#3d9e6e;color:#fff;border:none;border-radius:9px;
-        padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;
+        padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;
         font-family:inherit;box-shadow:0 2px 6px rgba(0,0,0,.15);
         transition:background .15s;white-space:nowrap;
       ">💾 保存</button>
+      <button onclick="loadFromFile()" style="
+        background:#4a7a6a;color:#fff;border:none;border-radius:9px;
+        padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;
+        font-family:inherit;box-shadow:0 2px 6px rgba(0,0,0,.15);
+        transition:background .15s;white-space:nowrap;
+      ">📂 読込</button>
       <div class="header-time" id="headerTime"></div>
     </div>
   </div>
@@ -457,42 +463,68 @@ const HOLIDAYS = new Set(["2024-01-01","2024-01-08","2024-02-11","2024-02-12","2
 const BASE_DATE = new Date(2025, 0, 1);
 const DOWSTR = ['日','月','火','水','木','金','土'];
 
-// --- Settings・データ管理 (ファイルベース・キャッシュなし) ---
-const LS_LAST_FILE = 'shukkin_last_filename'; // ファイル名のヒントのみ記憶
-let _currentFileHandle = null; // FileSystemFileHandle（上書き保存用）
+// ============================================================
+// ■ 保存・キャッシュ管理（完全新規設計）
+// ============================================================
 
+// localStorageキー
+const LS_CACHE    = 'shukkin_cache_v2';      // データ本体キャッシュ
+const LS_WARNED   = 'shukkin_warned_v2';     // デフォルト値警告済みフラグ
+
+// デフォルト値（キャッシュなし時の初期値）
 const DEFAULT_SETTINGS = {
-  baseDate: '2026-04-01',
-  baseDia: 1,
-  cycle: 57,
-  wakeBeforeLeave:   90,
-  leaveBeforeWork:   60,
-  arriveBeforeStart: 30,
-  returnAfterEnd:    10,
+  baseDate: '2026-01-01',
+  baseDia:  1,
+  cycle:    57,
+  wakeBeforeLeave:   0,
+  leaveBeforeWork:   0,
+  arriveBeforeStart: 0,
+  returnAfterEnd:    0,
   showOkibo: true, showShukkin: true, showTochaku: true,
   showShukkinTime: true, showTaikinTime: true, showKikaku: true,
 };
 
-function loadSettings() { return Object.assign({}, DEFAULT_SETTINGS); }
-function saveSettings(s) {
-  SETTINGS = s;
-  _markDirty();
+function _isDefaultSettings(s) {
+  return s.baseDate === DEFAULT_SETTINGS.baseDate
+      && s.baseDia  === DEFAULT_SETTINGS.baseDia
+      && s.wakeBeforeLeave   === 0
+      && s.leaveBeforeWork   === 0
+      && s.arriveBeforeStart === 0
+      && s.returnAfterEnd    === 0;
 }
+
+// キャッシュ書き込み（設定変更・ダイヤ変更・臨時変更のたびに呼ぶ）
+function _saveCache() {
+  try {
+    const data = {
+      settings:         SETTINGS,
+      diaOverrides:     DIA_OVERRIDES,
+      shukkinOverrides: SHUKKIN_OVERRIDES,
+      cachedAt:         new Date().toISOString()
+    };
+    localStorage.setItem(LS_CACHE, JSON.stringify(data));
+  } catch(e) { console.warn('キャッシュ保存失敗:', e); }
+}
+
+// キャッシュ読込（起動時）→ true:成功 / false:キャッシュなし
+function _loadCache() {
+  try {
+    const raw = localStorage.getItem(LS_CACHE);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || !data.settings) return false;
+    SETTINGS         = Object.assign({}, DEFAULT_SETTINGS, data.settings);
+    DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
+    SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
+    return true;
+  } catch(e) { return false; }
+}
+
+// loadSettings / saveSettings（既存コードからの呼び出し互換）
+function loadSettings() { return Object.assign({}, DEFAULT_SETTINGS); }
+function saveSettings(s) { SETTINGS = s; _saveCache(); }
 
 let SETTINGS = loadSettings();
-
-// 未保存フラグ管理
-function _markDirty() {
-  // ヘッダー保存ボタンをオレンジで強調（未保存通知）
-  const hbtn = document.getElementById('save-file-btn');
-  if (hbtn) { hbtn.style.background = '#c06030'; hbtn.textContent = '💾 保存 ⚠️'; }
-
-}
-function _clearDirty() {
-  const hbtn = document.getElementById('save-file-btn');
-  if (hbtn) { hbtn.style.background = '#3d9e6e'; hbtn.textContent = '💾 保存'; }
-
-}
 
 function getBaseDate() {
   const parts = (SETTINGS.baseDate || '2026-04-01').split('-');
@@ -526,8 +558,8 @@ let DIA_OVERRIDES = {};
 
 // 出勤時間臨時変更: key="YYYY-MM-DD_shiftIndex" → 分数  ※メモリ管理
 let SHUKKIN_OVERRIDES = {};
-function saveShukkinOverrides() { _markDirty(); }
-function saveDiaOverrides()     { _markDirty(); }
+function saveShukkinOverrides() { _saveCache(); }
+function saveDiaOverrides()     { _saveCache(); }
 
 function getSchedule(date) {
   const key = getDateKey(date);
@@ -888,8 +920,8 @@ function applySettings() {
   saveSettings(SETTINGS);
   render();
   renderSettings();
-  _markDirty(); // ヘッダー保存ボタンをオレンジで強調
-  showToast('✅ 適用しました！右上の保存ボタンでファイル保存してください');
+  _saveCache(); // キャッシュに即時反映
+  showToast('✅ 設定を適用しました');
 }
 
 function updateClock() {
@@ -1176,39 +1208,19 @@ setInterval(updateClock, 30000);
     </div>
   </div>
 </div>
-<!-- PWAインストールバー -->
-<div id="pwa-install-bar" style="display:none;position:fixed;bottom:16px;left:12px;right:12px;z-index:400;background:#1a3a2a;color:#fff;border-radius:14px;padding:12px 16px;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.3);">
-  <div style="flex:1;font-size:13px;font-weight:700;">📱 ホーム画面に追加できます</div>
-  <button onclick="document.getElementById('pwa-install-bar').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;padding:0 4px;cursor:pointer;line-height:1">×</button>
-  <button onclick="installPWA()" style="background:#3d9e6e;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">追加する</button>
-</div>
-
-<!-- 起動時ファイル選択モーダル -->
-<div id="startup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:20px;padding:24px 20px 20px;width:300px;box-shadow:0 8px 40px rgba(0,0,0,.25);text-align:center;">
-    <div style="font-size:15px;font-weight:700;color:#2d6e52;margin-bottom:8px;">📂 データファイルを読み込む</div>
-    <div id="startup-modal-msg" style="font-size:13px;color:#5a8f78;margin-bottom:14px;">前回保存したJSONファイルを選択してください。</div>
-    <div id="startup-last-file" style="background:#edfaf3;border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#3a7a5e;display:none;">
-      📄 前回: <strong id="startup-last-name"></strong>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button onclick="startupSelectFile()" style="padding:13px;background:#3d9e6e;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">ファイルを選択して読み込む</button>
-      <button onclick="startupSkip()" style="padding:11px;background:#edfaf3;color:#6a9e85;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">スキップ（データなしで起動）</button>
-    </div>
-  </div>
-</div>
-
-<!-- ファイル選択input（フォールバック用） -->
-<input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleFileImport(event)">
+<!-- 読込用input（非表示） -->
+<input type="file" id="load-file-input" accept=".json" style="display:none" onchange="handleLoadFile(event)">
 
 <script>
-// ===== トースト通知 =====
+// ============================================================
+// ■ トースト通知
+// ============================================================
 function showToast(msg, dur=2500) {
   let t = document.getElementById('_toast');
   if (!t) {
     t = document.createElement('div');
     t.id = '_toast';
-    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);font-family:inherit;';
     document.body.appendChild(t);
   }
   t.textContent = msg;
@@ -1218,98 +1230,85 @@ function showToast(msg, dur=2500) {
   t._tid = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, dur);
 }
 
-// ===== localStorageキー =====
-const LS_DATA = 'shukkin_data_v1'; // データ本体（自動保存用）
-
-// ===== ファイルベース保存・読込 =====
+// ============================================================
+// ■ 保存（ファイルに書き出し）
+// ============================================================
 function _makeFilename() {
-  return '出勤時間管理.json'; // 固定ファイル名（常に同じファイルに上書き）
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `出勤管理${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
 }
 
 function _buildSaveData() {
-  return { settings: SETTINGS, diaOverrides: DIA_OVERRIDES, shukkinOverrides: SHUKKIN_OVERRIDES, savedAt: new Date().toISOString() };
+  return {
+    settings:         SETTINGS,
+    diaOverrides:     DIA_OVERRIDES,
+    shukkinOverrides: SHUKKIN_OVERRIDES,
+    savedAt:          new Date().toISOString()
+  };
 }
 
-// localStorageへ即時バックアップ（データ消失防止）
-function _autoSaveToCache() {
-  try { localStorage.setItem(LS_DATA, JSON.stringify(_buildSaveData())); } catch(e) {}
-}
+async function saveToFile() {
+  const json  = JSON.stringify(_buildSaveData(), null, 2);
+  const fname = _makeFilename();
 
-function _applyLoadedData(data) {
-  if (data.settings && typeof data.settings === 'object') {
-    SETTINGS = Object.assign({}, DEFAULT_SETTINGS, data.settings);
-  }
-  DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
-  SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
-  _autoSaveToCache();
-  _clearDirty();
-}
-
-// 起動時処理：localStorageにデータがあれば自動読込、なければファイル選択
-function startupLoad() {
-  // キャッシュがあれば自動読込（モーダルなし）
-  try {
-    const cached = localStorage.getItem(LS_DATA);
-    if (cached) {
-      const data = JSON.parse(cached);
-      if (data && data.settings) { // 正常なデータか確認
-        _applyLoadedData(data);
-        render();
-        renderSettings();
-        showToast('✓ 前回のデータを読み込みました');
-        return; // モーダルなしで起動完了
-      }
-    }
-  } catch(e) {
-    console.warn('キャッシュ読込エラー:', e);
-  }
-  // キャッシュなし（初回 or クリア済み）→ ファイル選択モーダル表示
-  const lastName = localStorage.getItem(LS_LAST_FILE) || '';
-  if (lastName) {
-    document.getElementById('startup-last-name').textContent = lastName;
-    document.getElementById('startup-last-file').style.display = 'block';
-    document.getElementById('startup-modal-msg').textContent = '前回使ったファイルを選んでください。';
-  }
-  document.getElementById('startup-modal').style.display = 'flex';
-}
-
-async function startupSelectFile() {
-  document.getElementById('startup-modal').style.display = 'none';
-  if (window.showOpenFilePicker) {
+  if (window.showSaveFilePicker) {
     try {
-      const [fh] = await window.showOpenFilePicker({
-        types: [{ description: '出勤時間管理データ', accept: { 'application/json': ['.json'] } }],
-        multiple: false
+      const fh = await window.showSaveFilePicker({
+        suggestedName: fname,
+        types: [{ description: '出勤時間管理データ', accept: { 'application/json': ['.json'] } }]
       });
-      _currentFileHandle = fh;
-      const file = await fh.getFile();
-      await _readAndApplyFile(file);
-      localStorage.setItem(LS_LAST_FILE, file.name);
+      const writable = await fh.createWritable();
+      await writable.write(json);
+      await writable.close();
+      showToast('✓ 保存しました: ' + fname);
       return;
     } catch(e) {
-      if (e.name === 'AbortError') { startupSkip(); return; }
+      if (e.name === 'AbortError') return;
     }
   }
   // フォールバック（Safari等）
-  document.getElementById('import-file-input').click();
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ 保存しました: ' + fname);
 }
 
-function startupSkip() {
-  document.getElementById('startup-modal').style.display = 'none';
-  SETTINGS = loadSettings();
-  DIA_OVERRIDES = {};
-  SHUKKIN_OVERRIDES = {};
-  render();
-  renderSettings();
+// ============================================================
+// ■ 読込（ファイルから復元）
+// ============================================================
+function loadFromFile() {
+  if (window.showOpenFilePicker) {
+    window.showOpenFilePicker({
+      types: [{ description: '出勤時間管理データ', accept: { 'application/json': ['.json'] } }],
+      multiple: false
+    }).then(([fh]) => fh.getFile()).then(file => _applyFile(file))
+      .catch(e => { if (e.name !== 'AbortError') showToast('⚠️ 読込に失敗しました'); });
+    return;
+  }
+  document.getElementById('load-file-input').click();
 }
 
-async function _readAndApplyFile(file) {
+function handleLoadFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  _applyFile(file).then(() => { e.target.value = ''; });
+}
+
+function _applyFile(file) {
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
-        _applyLoadedData(data);
+        if (!data || !data.settings) throw new Error('不正なデータ');
+        SETTINGS         = Object.assign({}, DEFAULT_SETTINGS, data.settings);
+        DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
+        SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
+        _saveCache(); // 読み込んだ内容をキャッシュに反映
+        localStorage.removeItem(LS_WARNED); // 警告フラグリセット
         render();
         renderSettings();
         showToast('✓ 読み込みました: ' + file.name);
@@ -1323,74 +1322,19 @@ async function _readAndApplyFile(file) {
   });
 }
 
-function handleFileImport(e) {
-  const file = e.target.files[0]; if (!file) { startupSkip(); return; }
-  _currentFileHandle = null;
-  localStorage.setItem(LS_LAST_FILE, file.name);
-  _readAndApplyFile(file).then(() => { e.target.value = ''; });
-}
-
-// ファイル保存ボタン
-async function saveToFile() {
-  const json = JSON.stringify(_buildSaveData(), null, 2);
-  const fname = _makeFilename();
-
-  // 既存ファイルハンドルがあれば上書き
-  if (_currentFileHandle) {
-    try {
-      const writable = await _currentFileHandle.createWritable();
-      await writable.write(json);
-      await writable.close();
-      _autoSaveToCache();
-      _clearDirty();
-      showToast('✓ 上書き保存しました');
-      return;
-    } catch(e) {
-      if (e.name === 'AbortError') return;
-      _currentFileHandle = null;
-    }
-  }
-
-  // 新規保存
-  if (window.showSaveFilePicker) {
-    try {
-      const fh = await window.showSaveFilePicker({
-        suggestedName: fname,
-        types: [{ description: '出勤時間管理データ', accept: { 'application/json': ['.json'] } }]
-      });
-      const writable = await fh.createWritable();
-      await writable.write(json);
-      await writable.close();
-      _currentFileHandle = fh;
-      fh.getFile().then(f => localStorage.setItem(LS_LAST_FILE, f.name));
-      _autoSaveToCache();
-      _clearDirty();
-      showToast('✓ 保存しました');
-      return;
-    } catch(e) {
-      if (e.name === 'AbortError') return;
-    }
-  }
-  // フォールバック（Safari等）
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = fname; a.click();
-  URL.revokeObjectURL(url);
-  _autoSaveToCache();
-  _clearDirty();
-  showToast('✓ 保存しました（ダウンロード）');
-}
-
-// ===== PWAインストール =====
+// ============================================================
+// ■ PWAインストール
+// ============================================================
 let _installPrompt = null;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _installPrompt = e;
-  document.getElementById('pwa-install-bar').style.display = 'flex';
+  const bar = document.getElementById('pwa-install-bar');
+  if (bar) bar.style.display = 'flex';
 });
 window.addEventListener('appinstalled', () => {
-  document.getElementById('pwa-install-bar').style.display = 'none';
+  const bar = document.getElementById('pwa-install-bar');
+  if (bar) bar.style.display = 'none';
   _installPrompt = null;
   showToast('✓ ホーム画面に追加しました');
 });
@@ -1400,12 +1344,39 @@ function installPWA() {
   _installPrompt.userChoice.then(() => { _installPrompt = null; });
 }
 
-// ===== 起動時処理 =====
+// ============================================================
+// ■ 起動時処理
+// ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  // startupLoad() の中で render/renderSettings を呼ぶ
-  startupLoad();
+  const hasCached = _loadCache();
+
+  if (!hasCached) {
+    // キャッシュなし → デフォルト値で起動
+    SETTINGS         = loadSettings();
+    DIA_OVERRIDES     = {};
+    SHUKKIN_OVERRIDES = {};
+  }
+
+  render();
+  renderSettings();
+
+  // デフォルト値警告チェック
+  if (_isDefaultSettings(SETTINGS)) {
+    const warned = localStorage.getItem(LS_WARNED);
+    if (!warned) {
+      localStorage.setItem(LS_WARNED, '1');
+      setTimeout(() => showToast('⚠️ 設定がデフォルト値です。設定をして下さい！', 5000), 500);
+    }
+  }
 });
 </script>
+
+<!-- PWAインストールバー -->
+<div id="pwa-install-bar" style="display:none;position:fixed;bottom:16px;left:12px;right:12px;z-index:400;background:#1a3a2a;color:#fff;border-radius:14px;padding:12px 16px;display:none;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.3);">
+  <div style="flex:1;font-size:13px;font-weight:700;">📱 ホーム画面に追加できます</div>
+  <button onclick="document.getElementById('pwa-install-bar').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;padding:0 4px;cursor:pointer;line-height:1">×</button>
+  <button onclick="installPWA()" style="background:#3d9e6e;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">追加する</button>
+</div>
 
 </body>
 </html>
