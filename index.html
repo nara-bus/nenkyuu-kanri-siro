@@ -992,27 +992,30 @@ async function doExport() {
     warningSuppressed: localStorage.getItem('warningSuppressed') || null,
   };
   const json = JSON.stringify(appData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
 
-  // HTTPS環境（GitHub Pages等）はフォルダ選択ダイアログ
+  // HTTPS環境はフォルダ選択ダイアログ、成功したら必ずここで終了
   if (window.showSaveFilePicker && location.protocol === 'https:') {
+    let saved = false;
     try {
       const fh = await window.showSaveFilePicker({
         suggestedName: fname,
         types: [{ description: 'JSONファイル', accept: { 'application/json': ['.json'] } }]
       });
       const writable = await fh.createWritable();
-      await writable.write(json);
+      await writable.write(blob);
       await writable.close();
-      return;
+      saved = true;
     } catch(e) {
-      if (e.name === 'AbortError') return; // キャンセル
+      if (e.name === 'AbortError') return; // キャンセルは何もしない
+      // それ以外のエラーはフォールバックへ
     }
+    if (saved) return; // 成功していたら絶対にここで終了
   }
 
-  // HTTP環境（127.0.0.1等）はダウンロードフォルダへ保存
-  const blob = new Blob([json], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
+  // HTTP環境 or showSaveFilePicker失敗時のフォールバック
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
   a.href = url;
   a.download = fname;
   document.body.appendChild(a);
