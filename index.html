@@ -2,46 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#3d9e6e">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="出勤時間管理">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>出勤時間管理</title>
-<script id="pwa-manifest-data" type="application/json">{
-  "name": "出勤時間管理",
-  "short_name": "出勤時間管理",
-  "description": "シフト・出勤時間管理アプリ",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#dff2ea",
-  "theme_color": "#3d9e6e",
-  "icons": [
-    {
-      "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20192%20192%22%3E%3Crect%20width%3D%22192%22%20height%3D%22192%22%20rx%3D%2236%22%20fill%3D%22%232d6e52%22%2F%3E%3Ctext%20x%3D%2296%22%20y%3D%22130%22%20font-size%3D%22110%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%3E%E2%8F%B0%3C%2Ftext%3E%3C%2Fsvg%3E",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%2296%22%20fill%3D%22%232d6e52%22%2F%3E%3Ctext%20x%3D%22256%22%20y%3D%22360%22%20font-size%3D%22300%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%3E%E2%8F%B0%3C%2Ftext%3E%3C%2Fsvg%3E",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
-}</script>
-<script>
-(function(){
-  var m=document.getElementById('pwa-manifest-data').textContent;
-  var b=new Blob([m],{type:'application/manifest+json'});
-  var u=URL.createObjectURL(b);
-  var l=document.createElement('link');
-  l.rel='manifest';l.href=u;
-  document.head.appendChild(l);
-})();
-</script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -334,7 +296,30 @@
   }
   .toggle-wrap input:checked + .toggle-slider { background: #3d9e6e; border-color: #3d9e6e; }
   .toggle-wrap input:checked + .toggle-slider:before { transform: translateX(22px); }
-
+  .save-btn {
+    width: 100%;
+    padding: 14px;
+    background: #3d9e6e;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 4px;
+    transition: background 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .save-btn:active { background: #2d7e56; }
+  .save-msg {
+    text-align: center;
+    font-size: 13px;
+    color: #2d8a5e;
+    margin-top: 10px;
+    min-height: 20px;
+    font-weight: 600;
+  }
   .today-dia-display {
     text-align: center;
     font-size: 13px;
@@ -399,7 +384,7 @@
     font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
   }
   .nk-ok:active { background: #2d7e56; }
-  .hidden { display: none; }
+  .hidden { display: none !important; }
   /* 出勤時間臨時変更テンキー専用スタイル */
   .shukkin-numpad-box {
     background: #fff; border-radius: 20px;
@@ -415,6 +400,42 @@
     text-align: center; font-size: 11px; color: #b8355a;
     margin-bottom: 10px; cursor: pointer; text-decoration: underline;
   }
+
+  /* ファイル保存・読込ボタン */
+  .file-btn-bar {
+    display: flex; gap: 8px; padding: 0 0 12px;
+  }
+  .file-btn {
+    flex: 1; padding: 9px 0; border-radius: 10px; border: none;
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: background 0.18s; letter-spacing: 0.04em;
+  }
+  .file-btn-save { background: #3d9e6e; color: #fff; }
+  .file-btn-save:active { background: #2d7e56; }
+  .file-btn-load { background: rgba(100,180,140,0.22); color: #2d6e52; border: 1px solid rgba(80,160,120,0.3); }
+  .file-btn-load:active { background: rgba(100,180,140,0.4); }
+  /* 警告モーダル */
+  .alert-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+  }
+  .alert-box {
+    background: #fff; border-radius: 20px;
+    padding: 30px 24px 22px; width: 310px; max-width: 90vw;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+    text-align: center;
+  }
+  .alert-icon { font-size: 40px; margin-bottom: 10px; }
+  .alert-title {
+    font-size: 15px; font-weight: 700; color: #c0392b;
+    line-height: 1.6; margin-bottom: 20px;
+  }
+  .alert-ok {
+    width: 100%; padding: 13px; background: #3d9e6e;
+    border: none; border-radius: 12px; color: #fff;
+    font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .alert-ok:active { background: #2d7e56; }
 </style>
 </head>
 <body>
@@ -425,25 +446,15 @@
       <div class="header-label">出勤時間管理</div>
       <div class="header-date" id="headerDate"></div>
     </div>
-    <div style="display:flex;align-items:center;gap:6px;">
-      <button id="save-file-btn" onclick="saveToFile()" style="
-        background:#3d9e6e;color:#fff;border:none;border-radius:9px;
-        padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;
-        font-family:inherit;box-shadow:0 2px 6px rgba(0,0,0,.15);
-        transition:background .15s;white-space:nowrap;
-      ">💾 保存</button>
-      <button onclick="loadFromFile()" style="
-        background:#4a7a6a;color:#fff;border:none;border-radius:9px;
-        padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;
-        font-family:inherit;box-shadow:0 2px 6px rgba(0,0,0,.15);
-        transition:background .15s;white-space:nowrap;
-      ">📂 読込</button>
-      <div class="header-time" id="headerTime"></div>
-    </div>
+    <div class="header-time" id="headerTime"></div>
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('week')">📋 予定</button>
     <button class="tab-btn" onclick="switchTab('settings')">⚙️ 設定</button>
+  </div>
+  <div class="file-btn-bar">
+    <button class="file-btn file-btn-save" onclick="saveAppToFile()">💾 保存</button>
+    <button class="file-btn file-btn-load" onclick="loadAppFromFile()">📂 読込</button>
   </div>
 </div>
 
@@ -463,18 +474,12 @@ const HOLIDAYS = new Set(["2024-01-01","2024-01-08","2024-02-11","2024-02-12","2
 const BASE_DATE = new Date(2025, 0, 1);
 const DOWSTR = ['日','月','火','水','木','金','土'];
 
-// ============================================================
-// ■ 保存・キャッシュ管理（完全新規設計）
-// ============================================================
-
-// localStorageキー
-const LS_CACHE    = 'shukkin_cache_v2';      // データ本体キャッシュ
-
-// デフォルト値（キャッシュなし時の初期値）
+// --- Settings (persisted in localStorage) ---
+// デフォルト値（キャッシュクリア時に使用）
 const DEFAULT_SETTINGS = {
   baseDate: '2026-01-01',
-  baseDia:  1,
-  cycle:    57,
+  baseDia: 1,
+  cycle: 57,
   wakeBeforeLeave:   0,
   leaveBeforeWork:   0,
   arriveBeforeStart: 0,
@@ -483,45 +488,27 @@ const DEFAULT_SETTINGS = {
   showShukkinTime: true, showTaikinTime: true, showKikaku: true,
 };
 
-function _isDefaultSettings(s) {
-  return s.baseDate === DEFAULT_SETTINGS.baseDate
-      && s.baseDia  === DEFAULT_SETTINGS.baseDia
-      && s.wakeBeforeLeave   === 0
-      && s.leaveBeforeWork   === 0
-      && s.arriveBeforeStart === 0
-      && s.returnAfterEnd    === 0;
+function isDefaultSettings(s) {
+  // ダイヤ番号以外がデフォルト値かチェック
+  return (
+    s.baseDate === DEFAULT_SETTINGS.baseDate &&
+    (s.wakeBeforeLeave   === 0 || s.wakeBeforeLeave   === undefined) &&
+    (s.leaveBeforeWork   === 0 || s.leaveBeforeWork   === undefined) &&
+    (s.arriveBeforeStart === 0 || s.arriveBeforeStart === undefined) &&
+    (s.returnAfterEnd    === 0 || s.returnAfterEnd    === undefined)
+  );
 }
 
-// キャッシュ書き込み（設定変更・ダイヤ変更・臨時変更のたびに呼ぶ）
-function _saveCache() {
+function loadSettings() {
   try {
-    const data = {
-      settings:         SETTINGS,
-      diaOverrides:     DIA_OVERRIDES,
-      shukkinOverrides: SHUKKIN_OVERRIDES,
-      cachedAt:         new Date().toISOString()
-    };
-    localStorage.setItem(LS_CACHE, JSON.stringify(data));
-  } catch(e) { console.warn('キャッシュ保存失敗:', e); }
+    const s = localStorage.getItem('shiftSettings');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return Object.assign({}, DEFAULT_SETTINGS);
 }
-
-// キャッシュ読込（起動時）→ true:成功 / false:キャッシュなし
-function _loadCache() {
-  try {
-    const raw = localStorage.getItem(LS_CACHE);
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (!data || !data.settings) return false;
-    SETTINGS         = Object.assign({}, DEFAULT_SETTINGS, data.settings);
-    DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
-    SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
-    return true;
-  } catch(e) { return false; }
+function saveSettings(s) {
+  try { localStorage.setItem('shiftSettings', JSON.stringify(s)); } catch(e) {}
 }
-
-// loadSettings / saveSettings（既存コードからの呼び出し互換）
-function loadSettings() { return Object.assign({}, DEFAULT_SETTINGS); }
-function saveSettings(s) { SETTINGS = s; _saveCache(); }
 
 let SETTINGS = loadSettings();
 
@@ -552,13 +539,20 @@ function getDayType(date) {
   return '平日';
 }
 
-// スポット上書き: { "2026-05-13": 5, ... }  ※メモリ管理・ファイル保存で永続化
+// スポット上書き: { "2026-05-13": 5, ... }
 let DIA_OVERRIDES = {};
+try { DIA_OVERRIDES = JSON.parse(localStorage.getItem('diaOverrides') || '{}'); } catch(e) {}
 
-// 出勤時間臨時変更: key="YYYY-MM-DD_shiftIndex" → 分数  ※メモリ管理
+// 出勤時間臨時変更: key="YYYY-MM-DD_shiftIndex" → 分数
 let SHUKKIN_OVERRIDES = {};
-function saveShukkinOverrides() { _saveCache(); }
-function saveDiaOverrides()     { _saveCache(); }
+try { SHUKKIN_OVERRIDES = JSON.parse(localStorage.getItem('shukkinOverrides') || '{}'); } catch(e) {}
+function saveShukkinOverrides() {
+  try { localStorage.setItem('shukkinOverrides', JSON.stringify(SHUKKIN_OVERRIDES)); } catch(e) {}
+}
+
+function saveDiaOverrides() {
+  try { localStorage.setItem('diaOverrides', JSON.stringify(DIA_OVERRIDES)); } catch(e) {}
+}
 
 function getSchedule(date) {
   const key = getDateKey(date);
@@ -839,6 +833,8 @@ function renderSettings() {
       </div>
     </div>
 
+    <button class="save-btn" onclick="applySettings()">💾 保存して適用</button>
+    <div class="save-msg" id="save-msg"></div>
 
     <!-- テンキーダイアログ -->
     <div id="numpad-overlay" class="numpad-overlay hidden">
@@ -899,7 +895,8 @@ function applySettings() {
   const ret      = (parseInt(document.getElementById('set-return-h').value)||0)*60 + (parseInt(document.getElementById('set-return-m').value)||0);
 
   if (!dateVal || !dia || dia < 1 || dia > cycle || !cycle) {
-    showToast('⚠️ 入力値を確認してください');
+    document.getElementById('save-msg').textContent = '⚠️ 入力値を確認してください';
+    document.getElementById('save-msg').style.color = '#f87171';
     return;
   }
 
@@ -917,10 +914,101 @@ function applySettings() {
     showKikaku:      document.getElementById('tog-kikaku').checked,
   };
   saveSettings(SETTINGS);
+  // 設定変更済みフラグをクリア（警告を次回から出さないようにする）
+  // ただしデフォルト値のままなら次回起動時にまた警告
   render();
   renderSettings();
-  _saveCache(); // キャッシュに即時反映
-  showToast('✅ 設定を適用しました');
+  document.getElementById('save-msg').textContent = '✅ 保存しました！';
+  document.getElementById('save-msg').style.color = '#34d399';
+  setTimeout(() => { const el = document.getElementById('save-msg'); if(el) el.textContent=''; }, 2000);
+}
+
+// ========== ファイル保存・読込 ==========
+function saveAppToFile() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const mo = String(now.getMonth()+1).padStart(2,'0');
+  const d = String(now.getDate()).padStart(2,'0');
+  const h = String(now.getHours()).padStart(2,'0');
+  const mi = String(now.getMinutes()).padStart(2,'0');
+  const filename = `出勤管理_${y}${mo}${d}${h}${mi}.json`;
+
+  const appData = {
+    version: 1,
+    savedAt: now.toISOString(),
+    shiftSettings:     localStorage.getItem('shiftSettings')     || null,
+    diaOverrides:      localStorage.getItem('diaOverrides')      || null,
+    shukkinOverrides:  localStorage.getItem('shukkinOverrides')  || null,
+    warningSuppressed: localStorage.getItem('warningSuppressed') || null,
+  };
+
+  const blob = new Blob([JSON.stringify(appData, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function loadAppFromFile() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.shiftSettings)     localStorage.setItem('shiftSettings',     data.shiftSettings);
+        if (data.diaOverrides)      localStorage.setItem('diaOverrides',      data.diaOverrides);
+        if (data.shukkinOverrides)  localStorage.setItem('shukkinOverrides',  data.shukkinOverrides);
+        if (data.warningSuppressed) localStorage.setItem('warningSuppressed', data.warningSuppressed);
+
+        // データ再読み込み
+        SETTINGS = loadSettings();
+        try { DIA_OVERRIDES     = JSON.parse(localStorage.getItem('diaOverrides') || '{}'); } catch(e) { DIA_OVERRIDES = {}; }
+        try { SHUKKIN_OVERRIDES = JSON.parse(localStorage.getItem('shukkinOverrides') || '{}'); } catch(e) { SHUKKIN_OVERRIDES = {}; }
+        render();
+        if (currentView === 'settings') renderSettings();
+        alert('📂 読込完了しました！\nファイル: ' + file.name);
+      } catch(err) {
+        alert('⚠️ 読込エラー: ファイル形式が正しくありません');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ========== 起動時警告 ==========
+function checkDefaultWarning() {
+  const suppressed = localStorage.getItem('warningSuppressed');
+  const settingsAreDefault = isDefaultSettings(SETTINGS);
+  
+  if (settingsAreDefault) {
+    // デフォルト値のまま → キャッシュの抑制フラグをクリアして毎回警告
+    localStorage.removeItem('warningSuppressed');
+    showDefaultWarning();
+  } else if (!suppressed) {
+    // 設定済みだが今回まだ警告を見ていない → 警告なし（設定済みなので出さない）
+    // 何もしない
+  }
+  // suppressed があれば今回は警告不要
+}
+
+function showDefaultWarning() {
+  const overlay = document.getElementById('default-warning-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+}
+
+function closeDefaultWarning() {
+  const overlay = document.getElementById('default-warning-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  // 今回セッションで確認済みとする（デフォルト値のままでも次の起動まで抑制）
+  localStorage.setItem('warningSuppressed', '1');
 }
 
 function updateClock() {
@@ -1070,6 +1158,8 @@ function diaNumpadOk() {
 updateClock();
 render();
 switchTab('week');
+// 起動時にデフォルト値チェック
+checkDefaultWarning();
 
 // ===== 出勤時間（勤務開始）臨時変更テンキー =====
 let _skDateKey = null, _skIdx = 0, _skOrigTime = '', _skSeg = 'h';
@@ -1207,187 +1297,13 @@ setInterval(updateClock, 30000);
     </div>
   </div>
 </div>
-<!-- 読込用input（非表示） -->
-<input type="file" id="load-file-input" accept=".json" style="display:none" onchange="handleLoadFile(event)">
-
-<script>
-// ============================================================
-// ■ トースト通知
-// ============================================================
-function showToast(msg, dur=2500) {
-  let t = document.getElementById('_toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = '_toast';
-    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);font-family:inherit;';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity = '1';
-  t.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(t._tid);
-  t._tid = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, dur);
-}
-
-// ============================================================
-// ■ 保存（ファイルに書き出し）
-// ============================================================
-function _makeFilename() {
-  const d = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  return `出勤管理${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
-}
-
-function _buildSaveData() {
-  return {
-    settings:         SETTINGS,
-    diaOverrides:     DIA_OVERRIDES,
-    shukkinOverrides: SHUKKIN_OVERRIDES,
-    savedAt:          new Date().toISOString()
-  };
-}
-
-async function saveToFile() {
-  const json  = JSON.stringify(_buildSaveData(), null, 2);
-  const fname = _makeFilename();
-
-  if (window.showSaveFilePicker) {
-    try {
-      const fh = await window.showSaveFilePicker({
-        suggestedName: fname,
-        types: [{ description: '出勤時間管理データ', accept: { 'application/json': ['.json'] } }]
-      });
-      const writable = await fh.createWritable();
-      await writable.write(json);
-      await writable.close();
-      showToast('✓ 保存しました: ' + fname);
-      return;
-    } catch(e) {
-      if (e.name === 'AbortError') return;
-    }
-  }
-  // フォールバック（Safari等）
-  const blob = new Blob([json], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = fname; a.click();
-  URL.revokeObjectURL(url);
-  showToast('✓ 保存しました: ' + fname);
-}
-
-// ============================================================
-// ■ 読込（ファイルから復元）
-// ============================================================
-function loadFromFile() {
-  if (window.showOpenFilePicker) {
-    window.showOpenFilePicker({
-      types: [{ description: '出勤時間管理データ', accept: { 'application/json': ['.json'] } }],
-      multiple: false
-    }).then(([fh]) => fh.getFile()).then(file => _applyFile(file))
-      .catch(e => { if (e.name !== 'AbortError') showToast('⚠️ 読込に失敗しました'); });
-    return;
-  }
-  document.getElementById('load-file-input').click();
-}
-
-function handleLoadFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  _applyFile(file).then(() => { e.target.value = ''; });
-}
-
-function _applyFile(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const raw = ev.target.result;
-        const data = JSON.parse(raw);
-        if (!data || typeof data !== 'object') throw new Error('不正なデータ');
-
-        let settingsObj = null;
-
-        if (data.settings && typeof data.settings === 'object') {
-          // 新形式: { settings: {...}, diaOverrides: {...}, ... }
-          settingsObj = data.settings;
-        } else if (data.baseDate !== undefined || data.baseDia !== undefined) {
-          // 旧形式: settings の内容が直接トップレベルにある
-          settingsObj = data;
-        } else if (data.cachedAt !== undefined && data.settings === undefined) {
-          // キャッシュ形式の可能性（settings が欠けている）
-          throw new Error('不正なデータ');
-        } else {
-          throw new Error('不正なデータ');
-        }
-
-        SETTINGS         = Object.assign({}, DEFAULT_SETTINGS, settingsObj);
-        DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
-        SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
-        _saveCache(); // 読み込んだ内容をキャッシュに反映
-        render();
-        renderSettings();
-        showToast('✓ 読み込みました: ' + file.name);
-      } catch(e) {
-        showToast('⚠️ ファイル形式が正しくありません (' + (e.message || 'JSON解析エラー') + ')');
-      }
-      resolve();
-    };
-    reader.onerror = () => { showToast('⚠️ 読み込み失敗'); resolve(); };
-    reader.readAsText(file, 'UTF-8');
-  });
-}
-
-// ============================================================
-// ■ PWAインストール
-// ============================================================
-let _installPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  _installPrompt = e;
-  const bar = document.getElementById('pwa-install-bar');
-  if (bar) bar.style.display = 'flex';
-});
-window.addEventListener('appinstalled', () => {
-  const bar = document.getElementById('pwa-install-bar');
-  if (bar) bar.style.display = 'none';
-  _installPrompt = null;
-  showToast('✓ ホーム画面に追加しました');
-});
-function installPWA() {
-  if (!_installPrompt) return;
-  _installPrompt.prompt();
-  _installPrompt.userChoice.then(() => { _installPrompt = null; });
-}
-
-// ============================================================
-// ■ 起動時処理
-// ============================================================
-window.addEventListener('DOMContentLoaded', () => {
-  const hasCached = _loadCache();
-
-  if (!hasCached) {
-    // キャッシュなし → デフォルト値で起動
-    SETTINGS         = loadSettings();
-    DIA_OVERRIDES     = {};
-    SHUKKIN_OVERRIDES = {};
-  }
-
-  render();
-  renderSettings();
-
-  // デフォルト値警告チェック（起動するたびに毎回表示）
-  if (_isDefaultSettings(SETTINGS)) {
-    setTimeout(() => showToast('⚠️ 設定がデフォルト値です。設定をして下さい！', 5000), 500);
-  }
-});
-</script>
-
-<!-- PWAインストールバー -->
-<div id="pwa-install-bar" style="display:none;position:fixed;bottom:16px;left:12px;right:12px;z-index:400;background:#1a3a2a;color:#fff;border-radius:14px;padding:12px 16px;display:none;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.3);">
-  <div style="flex:1;font-size:13px;font-weight:700;">📱 ホーム画面に追加できます</div>
-  <button onclick="document.getElementById('pwa-install-bar').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;padding:0 4px;cursor:pointer;line-height:1">×</button>
-  <button onclick="installPWA()" style="background:#3d9e6e;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">追加する</button>
+<!-- デフォルト値警告オーバーレイ -->
+<div id="default-warning-overlay" class="alert-overlay hidden">
+  <div class="alert-box">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-title">設定がデフォルト値です。<br>設定をして下さい！</div>
+    <button class="alert-ok" onclick="closeDefaultWarning()">OK</button>
+  </div>
 </div>
-
 </body>
 </html>
