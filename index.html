@@ -1223,8 +1223,7 @@ const LS_DATA = 'shukkin_data_v1'; // データ本体（自動保存用）
 
 // ===== ファイルベース保存・読込 =====
 function _makeFilename() {
-  const d = new Date();
-  return `出勤時間管理_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  return '出勤時間管理.json'; // 固定ファイル名（常に同じファイルに上書き）
 }
 
 function _buildSaveData() {
@@ -1248,17 +1247,23 @@ function _applyLoadedData(data) {
 
 // 起動時処理：localStorageにデータがあれば自動読込、なければファイル選択
 function startupLoad() {
+  // キャッシュがあれば自動読込（モーダルなし）
   try {
     const cached = localStorage.getItem(LS_DATA);
     if (cached) {
       const data = JSON.parse(cached);
-      _applyLoadedData(data);
-      render();
-      renderSettings();
-      return; // モーダルなしで起動
+      if (data && data.settings) { // 正常なデータか確認
+        _applyLoadedData(data);
+        render();
+        renderSettings();
+        showToast('✓ 前回のデータを読み込みました');
+        return; // モーダルなしで起動完了
+      }
     }
-  } catch(e) {}
-  // 初回 or キャッシュなし → ファイル選択モーダルを表示
+  } catch(e) {
+    console.warn('キャッシュ読込エラー:', e);
+  }
+  // キャッシュなし（初回 or クリア済み）→ ファイル選択モーダル表示
   const lastName = localStorage.getItem(LS_LAST_FILE) || '';
   if (lastName) {
     document.getElementById('startup-last-name').textContent = lastName;
@@ -1397,8 +1402,7 @@ function installPWA() {
 
 // ===== 起動時処理 =====
 window.addEventListener('DOMContentLoaded', () => {
-  render();
-  renderSettings();
+  // startupLoad() の中で render/renderSettings を呼ぶ
   startupLoad();
 });
 </script>
