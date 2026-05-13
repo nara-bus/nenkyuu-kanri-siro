@@ -469,7 +469,6 @@ const DOWSTR = ['日','月','火','水','木','金','土'];
 
 // localStorageキー
 const LS_CACHE    = 'shukkin_cache_v2';      // データ本体キャッシュ
-const LS_WARNED   = 'shukkin_warned_v2';     // デフォルト値警告済みフラグ
 
 // デフォルト値（キャッシュなし時の初期値）
 const DEFAULT_SETTINGS = {
@@ -1325,7 +1324,6 @@ function _applyFile(file) {
         DIA_OVERRIDES     = (data.diaOverrides     && typeof data.diaOverrides === 'object')     ? data.diaOverrides     : {};
         SHUKKIN_OVERRIDES = (data.shukkinOverrides && typeof data.shukkinOverrides === 'object') ? data.shukkinOverrides : {};
         _saveCache(); // 読み込んだ内容をキャッシュに反映
-        localStorage.removeItem(LS_WARNED); // 警告フラグリセット
         render();
         renderSettings();
         showToast('✓ 読み込みました: ' + file.name);
@@ -1377,13 +1375,9 @@ window.addEventListener('DOMContentLoaded', () => {
   render();
   renderSettings();
 
-  // デフォルト値警告チェック
+  // デフォルト値警告チェック（起動するたびに毎回表示）
   if (_isDefaultSettings(SETTINGS)) {
-    const warned = localStorage.getItem(LS_WARNED);
-    if (!warned) {
-      localStorage.setItem(LS_WARNED, '1');
-      setTimeout(() => showToast('⚠️ 設定がデフォルト値です。設定をして下さい！', 5000), 500);
-    }
+    setTimeout(() => showToast('⚠️ 設定がデフォルト値です。設定をして下さい！', 5000), 500);
   }
 });
 </script>
