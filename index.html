@@ -517,13 +517,15 @@ const DEFAULT_SETTINGS = {
 };
 
 function isDefaultSettings(s) {
-  // ダイヤ番号(baseDia)以外で、どれか1つでもデフォルト値と同じなら true → 警告
-  if (s.baseDate        === DEFAULT_SETTINGS.baseDate)        return true;
-  if ((s.wakeBeforeLeave   ?? DEFAULT_SETTINGS.wakeBeforeLeave)   === DEFAULT_SETTINGS.wakeBeforeLeave)   return true;
-  if ((s.leaveBeforeWork   ?? DEFAULT_SETTINGS.leaveBeforeWork)   === DEFAULT_SETTINGS.leaveBeforeWork)   return true;
-  if ((s.arriveBeforeStart ?? DEFAULT_SETTINGS.arriveBeforeStart) === DEFAULT_SETTINGS.arriveBeforeStart) return true;
-  if ((s.returnAfterEnd    ?? DEFAULT_SETTINGS.returnAfterEnd)    === DEFAULT_SETTINGS.returnAfterEnd)    return true;
-  return false;
+  // すべての値がデフォルト値と一致する場合のみ true → 警告
+  // （一部だけ一致しても設定済みとみなす）
+  return (
+    s.baseDate        === DEFAULT_SETTINGS.baseDate        &&
+    (s.wakeBeforeLeave   ?? DEFAULT_SETTINGS.wakeBeforeLeave)   === DEFAULT_SETTINGS.wakeBeforeLeave   &&
+    (s.leaveBeforeWork   ?? DEFAULT_SETTINGS.leaveBeforeWork)   === DEFAULT_SETTINGS.leaveBeforeWork   &&
+    (s.arriveBeforeStart ?? DEFAULT_SETTINGS.arriveBeforeStart) === DEFAULT_SETTINGS.arriveBeforeStart &&
+    (s.returnAfterEnd    ?? DEFAULT_SETTINGS.returnAfterEnd)    === DEFAULT_SETTINGS.returnAfterEnd
+  );
 }
 
 function loadSettings() {
