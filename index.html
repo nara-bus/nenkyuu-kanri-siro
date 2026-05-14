@@ -906,7 +906,7 @@ function renderSettings() {
       <div class="settings-row">
         <div>
           <div class="settings-row-label">⏰ 起床</div>
-          <div class="settings-row-sub">勤務開始の何時間何分前に起床</div>
+          <div class="settings-row-sub" id="sub-wake">${(()=>{ const d=(s.wakeBeforeLeave??90)-(s.leaveBeforeWork??60); const h=Math.floor(d/60),m=d%60; return d>0?(h>0?`出社まで${h}時間${m>0?m+'分':''}`:`出社まで${m}分`):'出社まで－'; })()}</div>
         </div>
         <div class="hm-wrap">
           <input class="hm-input" type="tel" id="set-wake-h" inputmode="numeric" pattern="[0-9]*" value="${Math.floor((s.wakeBeforeLeave??90)/60)}" readonly onclick="openNumpad(this, document.getElementById('set-wake-m'), '起床 − 勤務開始前')"><span class="hm-unit">時間</span>
@@ -917,7 +917,7 @@ function renderSettings() {
       <div class="settings-row">
         <div>
           <div class="settings-row-label">🚙 出社（家を出る）</div>
-          <div class="settings-row-sub">勤務開始の何時間何分前に出社</div>
+          <div class="settings-row-sub" id="sub-leave">${(()=>{ const d=(s.leaveBeforeWork??60)-(s.arriveBeforeStart??30); const h=Math.floor(d/60),m=d%60; return d>0?(h>0?`到着まで${h}時間${m>0?m+'分':''}`:`到着まで${m}分`):'到着まで－'; })()}</div>
         </div>
         <div class="hm-wrap">
           <input class="hm-input" type="tel" id="set-leave-h" inputmode="numeric" pattern="[0-9]*" value="${Math.floor((s.leaveBeforeWork??60)/60)}" readonly onclick="openNumpad(this, document.getElementById('set-leave-m'), '出社 − 勤務開始前')"><span class="hm-unit">時間</span>
@@ -928,7 +928,7 @@ function renderSettings() {
       <div class="settings-row">
         <div>
           <div class="settings-row-label">🏢 到着（会社）</div>
-          <div class="settings-row-sub">勤務開始の何時間何分前に到着</div>
+          <div class="settings-row-sub">出勤時間までの時間</div>
         </div>
         <div class="hm-wrap">
           <input class="hm-input" type="tel" id="set-arrive-h" inputmode="numeric" pattern="[0-9]*" value="${Math.floor((s.arriveBeforeStart??30)/60)}" readonly onclick="openNumpad(this, document.getElementById('set-arrive-m'), '到着 − 勤務開始前')"><span class="hm-unit">時間</span>
@@ -1017,6 +1017,7 @@ function renderSettings() {
     </div>
     <br>
   `;
+  updateTimeDiffLabels();
 }
 
 function togglePreview() {
@@ -1235,6 +1236,41 @@ function numpadOk() {
   if (numpadTargetH) numpadTargetH.value = parseInt(numpadValH) || 0;
   if (numpadTargetM) numpadTargetM.value = parseInt(numpadValM) || 0;
   closeNumpad();
+  updateTimeDiffLabels();
+}
+
+function updateTimeDiffLabels() {
+  const wakeMin   = (parseInt(document.getElementById('set-wake-h')?.value)||0)*60  + (parseInt(document.getElementById('set-wake-m')?.value)||0);
+  const leaveMin  = (parseInt(document.getElementById('set-leave-h')?.value)||0)*60 + (parseInt(document.getElementById('set-leave-m')?.value)||0);
+  const arriveMin = (parseInt(document.getElementById('set-arrive-h')?.value)||0)*60+ (parseInt(document.getElementById('set-arrive-m')?.value)||0);
+
+  // 起床→出社の差（wake - leave）
+  const wakeToLeave = wakeMin - leaveMin;
+  const subWake = document.getElementById('sub-wake');
+  if (subWake) {
+    if (wakeToLeave > 0) {
+      const h = Math.floor(wakeToLeave / 60), m = wakeToLeave % 60;
+      subWake.textContent = h > 0
+        ? `出社まで ${h}時間${m > 0 ? m + '分' : ''}`
+        : `出社まで ${m}分`;
+    } else {
+      subWake.textContent = '出社まで（要確認）';
+    }
+  }
+
+  // 出社→到着の差（leave - arrive）
+  const leaveToArrive = leaveMin - arriveMin;
+  const subLeave = document.getElementById('sub-leave');
+  if (subLeave) {
+    if (leaveToArrive > 0) {
+      const h = Math.floor(leaveToArrive / 60), m = leaveToArrive % 60;
+      subLeave.textContent = h > 0
+        ? `到着まで ${h}時間${m > 0 ? m + '分' : ''}`
+        : `到着まで ${m}分`;
+    } else {
+      subLeave.textContent = '到着まで（要確認）';
+    }
+  }
 }
 
 // ダイヤ番号テンキー（スポット変更 & 設定入力 兼用）
