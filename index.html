@@ -991,35 +991,29 @@ async function doExport() {
     warningSuppressed: localStorage.getItem('warningSuppressed') || null,
   };
   const json = JSON.stringify(appData, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
 
-  if (window.showSaveFilePicker && location.protocol === 'https:') {
-    // showSaveFilePicker のみ。成功・失敗・キャンセル全てここで完結。フォールバックなし。
-    closeSaveModal();
+  // showSaveFilePicker対応ブラウザ（Chrome等・HTTPS環境）
+  if (window.showSaveFilePicker) {
     try {
       const fh = await window.showSaveFilePicker({
         suggestedName: fname,
         types: [{ description: 'JSONファイル', accept: { 'application/json': ['.json'] } }]
       });
       const writable = await fh.createWritable();
-      await writable.write(blob);
+      await writable.write(json);
       await writable.close();
+      return;
     } catch(e) {
-      // AbortError=キャンセル、その他=エラー。どちらもフォールバックしない。
+      if (e.name === 'AbortError') return;
+      // SecurityError等は下のフォールバックへ
     }
-    return; // ← ここで必ず終了。<a download> は絶対に実行しない。
   }
-
-  // HTTP環境のみ <a download>
-  closeSaveModal();
-  const url = URL.createObjectURL(blob);
-  const a   = document.createElement('a');
-  a.href = url;
-  a.download = fname;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // フォールバック（HTTP環境・Safari等）
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
 }
 
 function loadAppFromFile() {
