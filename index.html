@@ -1178,6 +1178,11 @@ updateClock();
 render();
 switchTab('week');
 
+// DOMが完全に構築された後に警告チェックを実行
+window.addEventListener('DOMContentLoaded', function() {
+  checkDefaultWarning();
+});
+
 // 保存・読込ボタン：touchend のみ登録して Android の touch+click 二重発火を防ぐ
 (function() {
   function addTapOnly(id, fn) {
@@ -1199,8 +1204,7 @@ switchTab('week');
   addTapOnly('btn-load', loadAppFromFile);
 })();
 
-// 起動時にデフォルト値チェック
-checkDefaultWarning();
+// 起動時にデフォルト値チェック（DOMContentLoaded で実行）
 
 // ===== 出勤時間（勤務開始）臨時変更テンキー =====
 let _skDateKey = null, _skIdx = 0, _skOrigTime = '', _skSeg = 'h';
