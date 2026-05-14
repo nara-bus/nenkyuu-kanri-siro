@@ -401,19 +401,32 @@
     margin-bottom: 10px; cursor: pointer; text-decoration: underline;
   }
 
-  /* ファイル保存・読込ボタン */
-  .file-btn-bar {
-    display: flex; gap: 8px; padding: 0 0 12px;
+  /* ヘッダー保存・読込ボタン */
+  .hdr-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; width: 48px; height: 48px;
+    border-radius: 10px; font-size: 11px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.12s ease; border: none; line-height: 1;
   }
-  .file-btn {
-    flex: 1; padding: 9px 0; border-radius: 10px; border: none;
-    font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-    transition: background 0.18s; letter-spacing: 0.04em;
+  .hdr-btn-save {
+    background: linear-gradient(160deg, #e05a2b 0%, #c0391a 100%);
+    color: #fff;
+    box-shadow: 0 3px 0 rgba(140,30,10,0.6), 0 4px 8px rgba(200,60,20,0.35);
   }
-  .file-btn-save { background: #3d9e6e; color: #fff; }
-  .file-btn-save:active { background: #2d7e56; }
-  .file-btn-load { background: rgba(100,180,140,0.22); color: #2d6e52; border: 1px solid rgba(80,160,120,0.3); }
-  .file-btn-load:active { background: rgba(100,180,140,0.4); }
+  .hdr-btn-save:active {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    transform: translateY(2px);
+  }
+  .hdr-btn-load {
+    background: linear-gradient(160deg, #2563eb 0%, #1741b0 100%);
+    color: #fff;
+    box-shadow: 0 3px 0 rgba(15,40,140,0.6), 0 4px 8px rgba(37,99,235,0.35);
+  }
+  .hdr-btn-load:active {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    transform: translateY(2px);
+  }
   /* 警告モーダル */
   .alert-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.45);
@@ -447,15 +460,29 @@
       <div class="header-label">出勤時間管理</div>
       <div class="header-date" id="headerDate"></div>
     </div>
-    <div class="header-time" id="headerTime"></div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button class="hdr-btn hdr-btn-save" id="btn-save" title="データを保存">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="pointer-events:none">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        保存
+      </button>
+      <button class="hdr-btn hdr-btn-load" id="btn-load" title="データを読込">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="pointer-events:none">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        読込
+      </button>
+      <div class="header-time" id="headerTime"></div>
+    </div>
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('week')">📋 予定</button>
     <button class="tab-btn" onclick="switchTab('settings')">⚙️ 設定</button>
-  </div>
-  <div class="file-btn-bar">
-    <button class="file-btn file-btn-save" onclick="doExport()">💾 保存</button>
-    <button class="file-btn file-btn-load" onclick="loadAppFromFile()">📂 読込</button>
   </div>
 </div>
 
@@ -924,7 +951,12 @@ function applySettings() {
 }
 
 // ========== ファイル保存・読込 ==========
+let _exportBusy = false;
 function doExport() {
+  if (_exportBusy) return;
+  _exportBusy = true;
+  setTimeout(() => { _exportBusy = false; }, 3000);
+
   const now = new Date();
   const fname = `出勤管理_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.json`;
   const appData = {
@@ -1148,6 +1180,28 @@ function diaNumpadOk() {
 updateClock();
 render();
 switchTab('week');
+
+// 保存・読込ボタン：touchend のみ登録して Android の touch+click 二重発火を防ぐ
+(function() {
+  function addTapOnly(id, fn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let touched = false;
+    el.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      touched = true;
+      fn();
+      setTimeout(() => { touched = false; }, 500);
+    }, { passive: false });
+    el.addEventListener('click', function(e) {
+      if (touched) { touched = false; return; }
+      fn();
+    });
+  }
+  addTapOnly('btn-save', doExport);
+  addTapOnly('btn-load', loadAppFromFile);
+})();
+
 // 起動時にデフォルト値チェック
 checkDefaultWarning();
 
