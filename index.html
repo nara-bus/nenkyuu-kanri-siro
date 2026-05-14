@@ -951,12 +951,7 @@ function applySettings() {
 }
 
 // ========== ファイル保存・読込 ==========
-let _exportBusy = false;
 function doExport() {
-  if (_exportBusy) return;
-  _exportBusy = true;
-  setTimeout(() => { _exportBusy = false; }, 3000);
-
   const now = new Date();
   const fname = `出勤管理_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.json`;
   const appData = {
@@ -970,11 +965,11 @@ function doExport() {
   const json = JSON.stringify(appData, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.getElementById('save-anchor');
+  const a = document.createElement('a');
   a.href = url;
   a.download = fname;
   a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  URL.revokeObjectURL(url);
 }
 
 function loadAppFromFile() {
@@ -1349,6 +1344,5 @@ setInterval(updateClock, 30000);
     <button class="alert-ok" onclick="closeDefaultWarning()">OK</button>
   </div>
 </div>
-<a id="save-anchor" style="display:none"></a>
 </body>
 </html>
