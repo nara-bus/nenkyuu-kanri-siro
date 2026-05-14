@@ -924,7 +924,7 @@ function applySettings() {
 }
 
 // ========== ファイル保存・読込 ==========
-async function doExport() {
+function doExport() {
   const now = new Date();
   const fname = `出勤管理_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.json`;
   const appData = {
@@ -936,28 +936,13 @@ async function doExport() {
     warningSuppressed: localStorage.getItem('warningSuppressed') || null,
   };
   const json = JSON.stringify(appData, null, 2);
-  // showSaveFilePicker対応ブラウザ（Chrome等・HTTPS環境）
-  if (window.showSaveFilePicker) {
-    try {
-      const fh = await window.showSaveFilePicker({
-        suggestedName: fname,
-        types: [{ description: 'JSONファイル', accept: { 'application/json': ['.json'] } }]
-      });
-      const writable = await fh.createWritable();
-      await writable.write(json);
-      await writable.close();
-      return;
-    } catch(e) {
-      if (e.name === 'AbortError') return;
-      // SecurityError等はフォールバックへ
-    }
-  }
-  // フォールバック（Safari・HTTP環境等）
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = fname;
-  a.click(); URL.revokeObjectURL(url);
+  const a = document.getElementById('save-anchor');
+  a.href = url;
+  a.download = fname;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function loadAppFromFile() {
@@ -1310,5 +1295,6 @@ setInterval(updateClock, 30000);
     <button class="alert-ok" onclick="closeDefaultWarning()">OK</button>
   </div>
 </div>
+<a id="save-anchor" style="display:none"></a>
 </body>
 </html>
