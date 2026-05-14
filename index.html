@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>出勤時間管理</title>
+<meta name="description" content="シフト勤務の出勤時間管理アプリ">
+<meta name="theme-color" content="#3d9e6e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="出勤管理">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%233d9e6e'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle' fill='white'%3E%F0%9F%95%90%3C/text%3E%3C/svg%3E">
+<link id="manifest-placeholder" rel="manifest">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -146,7 +154,7 @@
   .dia-numpad-box {
     background: linear-gradient(170deg, #f8f8f8 0%, #efefef 100%);
     border-radius: 20px;
-    padding: 20px 16px 16px; width: 300px;
+    padding: 16px 12px 12px; width: 260px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.9);
     border: 1px solid rgba(0,0,0,0.08);
   }
@@ -361,33 +369,35 @@
   }
   .numpad-title {
     text-align: center; font-size: 13px; font-weight: 700;
-    color: #444; margin-bottom: 14px; letter-spacing: 0.05em;
+    color: #444; margin-bottom: 10px; letter-spacing: 0.05em;
   }
   .numpad-display-row {
     display: flex; align-items: center; justify-content: center;
-    gap: 6px; margin-bottom: 14px;
+    gap: 5px; margin-bottom: 10px;
   }
   .numpad-seg {
-    flex: 1; padding: 10px 6px; border-radius: 10px;
+    flex: 1; padding: 7px 4px; border-radius: 8px;
     background: #fff; border: 2px solid #ddd;
     text-align: center; cursor: pointer; transition: all 0.15s;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
   }
-  .numpad-seg.active { background: #f0f0f0; border-color: #888; box-shadow: inset 0 2px 6px rgba(0,0,0,0.12); }
-  .numpad-seg-val { font-size: 28px; font-weight: 800; color: #1e293b; line-height: 1; }
+  .numpad-seg.active { background: #e8e4f8; border-color: #8878cc; box-shadow: inset 0 2px 6px rgba(100,80,180,0.15); }
+  .numpad-seg-val { font-size: 24px; font-weight: 800; color: #1e293b; line-height: 1; }
   .numpad-seg-lbl { font-size: 11px; color: #888; margin-top: 2px; }
-  .numpad-colon { font-size: 24px; font-weight: 800; color: #aaa; }
+  .numpad-seg.active .numpad-seg-val { color: #5548b8; }
+  .numpad-seg.active .numpad-seg-lbl { color: #7868cc; }
+  .numpad-colon { font-size: 20px; font-weight: 800; color: #aaa; }
   .numpad-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-    margin-bottom: 10px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+    margin-bottom: 8px;
   }
   .nk {
     background: linear-gradient(170deg, #ffffff 0%, #e8e8e8 100%);
     border: 1px solid #ccc;
     border-bottom: 3px solid #aaa;
     border-radius: 12px;
-    color: #1e293b; font-size: 22px; font-weight: 700;
-    padding: 16px 0; cursor: pointer; font-family: inherit;
+    color: #1e293b; font-size: 19px; font-weight: 700;
+    padding: 12px 0; cursor: pointer; font-family: inherit;
     transition: all 0.1s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.10);
   }
@@ -409,24 +419,25 @@
     color: #ef4444; font-size: 18px;
   }
   .nk-del:active { background: linear-gradient(170deg, #fdd 0%, #fbb 100%); }
-  .numpad-actions { display: flex; gap: 8px; }
+  .numpad-actions { display: flex; gap: 6px; }
   .nk-cancel {
-    flex: 1; padding: 13px;
+    flex: 1; padding: 10px;
     background: linear-gradient(170deg, #f5f5f5 0%, #e5e5e5 100%);
     border: 1px solid #ccc; border-bottom: 3px solid #aaa;
     border-radius: 12px; color: #555;
-    font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    line-height: 1.3;
     box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     transition: all 0.1s;
   }
   .nk-cancel:active { border-bottom-width: 1px; transform: translateY(2px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.10); }
   .nk-ok {
-    flex: 2; padding: 13px;
-    background: linear-gradient(170deg, #5a5a5a 0%, #3a3a3a 100%);
-    border: 1px solid #2a2a2a; border-bottom: 3px solid #1a1a1a;
+    flex: 2; padding: 10px;
+    background: linear-gradient(170deg, #6b5fd8 0%, #4a3ec0 100%);
+    border: 1px solid #3a2eb0; border-bottom: 3px solid #2a1e98;
     border-radius: 12px; color: #fff;
     font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.20);
+    box-shadow: 0 2px 6px rgba(80,60,200,0.35);
     transition: all 0.1s;
   }
   .nk-ok:active { border-bottom-width: 1px; transform: translateY(2px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.20); }
@@ -452,8 +463,8 @@
   /* ヘッダー保存・読込ボタン */
   .hdr-btn {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 3px; width: 48px; height: 48px;
-    border-radius: 10px; font-size: 11px; font-weight: 700;
+    gap: 2px; width: 40px; height: 40px;
+    border-radius: 8px; font-size: 10px; font-weight: 700;
     cursor: pointer; font-family: inherit;
     transition: all 0.12s ease; border: none; line-height: 1;
   }
@@ -945,7 +956,7 @@ function renderSettings() {
           <button class="nk nk-del" onclick="numpadKey('del')">⌫</button>
         </div>
         <div class="numpad-actions">
-          <button class="nk-cancel" onclick="closeNumpad()">キャンセル</button>
+          <button class="nk-cancel" onclick="closeNumpad()">キャン<br>セル</button>
           <button class="nk-ok" onclick="numpadOk()">確定</button>
         </div>
       </div>
@@ -1374,7 +1385,7 @@ setInterval(updateClock, 30000);
       <button class="nk nk-del" onclick="diaNumpadKey('del')">⌫</button>
     </div>
     <div class="numpad-actions">
-      <button class="nk-cancel" onclick="closeDiaNumpad()">キャンセル</button>
+      <button class="nk-cancel" onclick="closeDiaNumpad()">キャン<br>セル</button>
       <button class="nk-ok" onclick="diaNumpadOk()">確定</button>
     </div>
   </div>
@@ -1412,7 +1423,7 @@ setInterval(updateClock, 30000);
       <button class="nk nk-del" onclick="skKey('del')">⌫</button>
     </div>
     <div class="numpad-actions">
-      <button class="nk-cancel" onclick="skCancel()">キャンセル</button>
+      <button class="nk-cancel" onclick="skCancel()">キャン<br>セル</button>
       <button class="nk-ok" style="background:#b8355a" onclick="skOk()">確定</button>
     </div>
   </div>
@@ -1425,5 +1436,30 @@ setInterval(updateClock, 30000);
     <button class="alert-ok" onclick="closeDefaultWarning()">OK</button>
   </div>
 </div>
+
+<script>
+// ── PWA: manifest を動的生成してリンクに設定 ──
+(function() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#3d9e6e"/><circle cx="96" cy="96" r="72" fill="white" opacity="0.15"/><text x="96" y="128" font-size="96" text-anchor="middle" fill="white">🕐</text></svg>`;
+  const icon = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+  const manifest = {
+    name: "出勤時間管理",
+    short_name: "出勤管理",
+    description: "シフト勤務の出勤時間管理アプリ",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#b8e0d2",
+    theme_color: "#3d9e6e",
+    orientation: "portrait",
+    icons: [
+      { src: icon, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+      { src: icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  document.getElementById('manifest-placeholder').setAttribute('href', url);
+})();
+</script>
 </body>
 </html>
