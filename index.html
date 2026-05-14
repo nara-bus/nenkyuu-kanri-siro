@@ -79,7 +79,8 @@
     color: #ffffff;
     font-weight: 700;
   }
-  .content { padding: 8px 16px 40px; }
+  .content {
+    overflow: hidden; position: relative; padding: 8px 16px 40px; }
   .section-label {
     font-size: 11px;
     color: #6a9e85;
@@ -794,7 +795,9 @@ function buildDayBlock(date, isToday) {
 
 let currentView = 'week';
 
-function switchTab(view) {
+function switchTab(view, dir) {
+  if (view === currentView) return;
+  const prev = currentView;
   currentView = view;
   document.querySelectorAll('.tab-btn').forEach((b,i) => {
     b.classList.toggle('active',
@@ -802,10 +805,44 @@ function switchTab(view) {
       (i===1 && view==='settings')
     );
   });
-  document.getElementById('view-today-tomorrow').classList.toggle('hidden', view !== 'week');
-  document.getElementById('view-week').classList.toggle('hidden', true);
-  document.getElementById('view-settings').classList.toggle('hidden', view !== 'settings');
+
+  // スライドアニメーション
+  const TABS = ['week', 'settings'];
+  const fromIdx = TABS.indexOf(prev);
+  const toIdx   = TABS.indexOf(view);
+  const slideDir = (dir !== undefined) ? dir : (toIdx > fromIdx ? -1 : 1);
+  // slideDir: -1=左スライド(→設定), 1=右スライド(→予定)
+
+  const incoming = view === 'settings'
+    ? document.getElementById('view-settings')
+    : document.getElementById('view-today-tomorrow');
+  const outgoing = prev === 'settings'
+    ? document.getElementById('view-settings')
+    : document.getElementById('view-today-tomorrow');
+
   if (view === 'settings') renderSettings();
+
+  // incoming を準備
+  incoming.style.transform = `translateX(${-slideDir * 100}%)`;
+  incoming.style.transition = 'none';
+  incoming.classList.remove('hidden');
+  document.getElementById('view-week').classList.add('hidden');
+
+  // outgoing と incoming を同時にスライド
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      incoming.style.transition = 'transform 0.22s ease';
+      incoming.style.transform = 'translateX(0)';
+      outgoing.style.transition = 'transform 0.22s ease';
+      outgoing.style.transform = `translateX(${slideDir * 100}%)`;
+      setTimeout(() => {
+        outgoing.classList.add('hidden');
+        outgoing.style.transform = '';
+        outgoing.style.transition = '';
+        incoming.style.transition = '';
+      }, 230);
+    });
+  });
 }
 
 function chk(key) { return SETTINGS[key] ? 'checked' : ''; }
@@ -1275,6 +1312,37 @@ function diaNumpadOk() {
 updateClock();
 render();
 switchTab('week');
+
+// ── スワイプで予定⇔設定を切り替え ──
+(function() {
+  const el = document.querySelector('.content');
+  if (!el) return;
+
+  const TABS = ['week', 'settings'];
+  let startX = 0, startY = 0, startTime = 0;
+
+  el.addEventListener('touchstart', function(e) {
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    startTime = Date.now();
+  }, { passive: true });
+
+  el.addEventListener('touchend', function(e) {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    const dt = Date.now() - startTime;
+
+    // 水平方向が主体 / 50px以上 / 400ms以内
+    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 0.8 || dt > 400) return;
+
+    const cur = TABS.indexOf(currentView);
+    if (dx < 0 && cur < TABS.length - 1) switchTab(TABS[cur + 1], -1); // 左→設定
+    if (dx > 0 && cur > 0)              switchTab(TABS[cur - 1],  1); // 右→予定
+  }, { passive: true });
+})();
+
 
 // DOMが完全に構築された後に警告チェックを実行
 window.addEventListener('DOMContentLoaded', function() {
