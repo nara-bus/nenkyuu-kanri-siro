@@ -83,14 +83,23 @@
   .day-block {
     border-radius: 18px;
     padding: 0 0 4px;
-    border: 1px solid rgba(100,180,140,0.2);
-    margin-bottom: 8px;
-    background: rgba(255,252,238,0.82);
+    border: 1px solid rgba(100,180,140,0.25);
+    border-bottom: 3px solid rgba(80,150,110,0.35);
+    margin-bottom: 10px;
+    background: linear-gradient(170deg, #fffef5 0%, rgba(255,252,235,0.95) 100%);
+    box-shadow:
+      0 4px 0 rgba(90,150,115,0.22),
+      0 6px 16px rgba(60,120,90,0.10),
+      inset 0 1px 0 rgba(255,255,255,0.85);
   }
   .day-block.today {
-    background: rgba(255,250,230,0.96);
-    border-color: rgba(60,155,105,0.45);
-    box-shadow: 0 2px 14px rgba(60,155,105,0.12);
+    background: linear-gradient(170deg, #fffff0 0%, rgba(255,250,225,0.98) 100%);
+    border-color: rgba(60,155,105,0.5);
+    border-bottom-color: rgba(40,130,85,0.5);
+    box-shadow:
+      0 5px 0 rgba(40,130,85,0.28),
+      0 8px 20px rgba(60,155,105,0.16),
+      inset 0 1px 0 rgba(255,255,255,0.9);
   }
   .day-header {
     display: flex;
@@ -135,29 +144,37 @@
   .dia-override { color: #b07020; }
   /* ダイヤ変更テンキー */
   .dia-numpad-box {
-    background: #fff; border-radius: 20px;
+    background: linear-gradient(170deg, #f8f8f8 0%, #efefef 100%);
+    border-radius: 20px;
     padding: 20px 16px 16px; width: 300px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.08);
   }
-  .dia-numpad-title { text-align: center; font-size: 13px; font-weight: 700; color: #3d9e6e; margin-bottom: 10px; }
-  .dia-numpad-date { text-align: center; font-size: 12px; color: #6a9e85; margin-bottom: 12px; }
+  .dia-numpad-title { text-align: center; font-size: 13px; font-weight: 700; color: #444; margin-bottom: 10px; }
+  .dia-numpad-date { text-align: center; font-size: 12px; color: #888; margin-bottom: 12px; }
   .dia-numpad-display {
-    background: #edfaf3; border-radius: 10px; padding: 10px 16px;
+    background: #fff; border-radius: 10px; padding: 10px 16px;
     text-align: center; font-size: 32px; font-weight: 800; color: #1e293b;
     margin-bottom: 12px; min-height: 56px; letter-spacing: 0.05em;
-    border: 2px solid #3d9e6e;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
   }
   .dia-numpad-reset {
-    text-align: center; font-size: 11px; color: #3d9e6e;
+    text-align: center; font-size: 11px; color: #777;
     margin-bottom: 8px; cursor: pointer; text-decoration: underline;
   }
   .shift-area { padding: 0 12px 4px; }
   .shift-cards { display: flex; flex-direction: column; gap: 8px; }
   .shift-card {
-    background: rgba(255,252,240,0.95);
+    background: linear-gradient(170deg, #ffffff 0%, rgba(255,252,238,0.98) 100%);
     border-radius: 14px;
     padding: 12px 16px;
-    border: 1px solid rgba(100,180,140,0.2);
+    border: 1px solid rgba(100,180,140,0.22);
+    border-bottom: 2px solid rgba(80,150,110,0.28);
+    box-shadow:
+      0 3px 0 rgba(90,150,115,0.18),
+      0 5px 12px rgba(60,120,90,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.9);
   }
   .shift-sublabel {
     font-size: 11px;
@@ -336,13 +353,15 @@
     z-index: 200; display: flex; align-items: center; justify-content: center;
   }
   .numpad-box {
-    background: #fff; border-radius: 20px;
+    background: linear-gradient(170deg, #f8f8f8 0%, #efefef 100%);
+    border-radius: 20px;
     padding: 20px 16px 16px; width: 300px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.08);
   }
   .numpad-title {
     text-align: center; font-size: 13px; font-weight: 700;
-    color: #3d9e6e; margin-bottom: 14px; letter-spacing: 0.05em;
+    color: #444; margin-bottom: 14px; letter-spacing: 0.05em;
   }
   .numpad-display-row {
     display: flex; align-items: center; justify-content: center;
@@ -350,52 +369,81 @@
   }
   .numpad-seg {
     flex: 1; padding: 10px 6px; border-radius: 10px;
-    background: #edfaf3; border: 2px solid transparent;
+    background: #fff; border: 2px solid #ddd;
     text-align: center; cursor: pointer; transition: all 0.15s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
   }
-  .numpad-seg.active { background: #d5f5e5; border-color: #3d9e6e; }
+  .numpad-seg.active { background: #f0f0f0; border-color: #888; box-shadow: inset 0 2px 6px rgba(0,0,0,0.12); }
   .numpad-seg-val { font-size: 28px; font-weight: 800; color: #1e293b; line-height: 1; }
-  .numpad-seg-lbl { font-size: 11px; color: #6a9e85; margin-top: 2px; }
-  .numpad-colon { font-size: 24px; font-weight: 800; color: #90c0a8; }
+  .numpad-seg-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+  .numpad-colon { font-size: 24px; font-weight: 800; color: #aaa; }
   .numpad-grid {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
     margin-bottom: 10px;
   }
   .nk {
-    background: #edfaf3; border: none; border-radius: 12px;
+    background: linear-gradient(170deg, #ffffff 0%, #e8e8e8 100%);
+    border: 1px solid #ccc;
+    border-bottom: 3px solid #aaa;
+    border-radius: 12px;
     color: #1e293b; font-size: 22px; font-weight: 700;
     padding: 16px 0; cursor: pointer; font-family: inherit;
-    transition: background 0.1s;
+    transition: all 0.1s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.10);
   }
-  .nk:active { background: #b5e8cf; }
-  .nk-clear { background: #fee2e2; color: #ef4444; font-size: 16px; font-weight: 700; }
-  .nk-clear:active { background: #fca5a5; }
-  .nk-del { background: #fee2e2; color: #ef4444; font-size: 18px; }
-  .nk-del:active { background: #fca5a5; }
+  .nk:active {
+    background: linear-gradient(170deg, #e0e0e0 0%, #d0d0d0 100%);
+    border-bottom: 1px solid #aaa;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.12);
+    transform: translateY(2px);
+  }
+  .nk-clear {
+    background: linear-gradient(170deg, #fff0f0 0%, #fdd 100%);
+    border-color: #f8b0b0; border-bottom-color: #e08080;
+    color: #ef4444; font-size: 16px; font-weight: 700;
+  }
+  .nk-clear:active { background: linear-gradient(170deg, #fdd 0%, #fbb 100%); }
+  .nk-del {
+    background: linear-gradient(170deg, #fff0f0 0%, #fdd 100%);
+    border-color: #f8b0b0; border-bottom-color: #e08080;
+    color: #ef4444; font-size: 18px;
+  }
+  .nk-del:active { background: linear-gradient(170deg, #fdd 0%, #fbb 100%); }
   .numpad-actions { display: flex; gap: 8px; }
   .nk-cancel {
-    flex: 1; padding: 13px; background: #edfaf3;
-    border: none; border-radius: 12px; color: #6a9e85;
+    flex: 1; padding: 13px;
+    background: linear-gradient(170deg, #f5f5f5 0%, #e5e5e5 100%);
+    border: 1px solid #ccc; border-bottom: 3px solid #aaa;
+    border-radius: 12px; color: #555;
     font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transition: all 0.1s;
   }
+  .nk-cancel:active { border-bottom-width: 1px; transform: translateY(2px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.10); }
   .nk-ok {
-    flex: 2; padding: 13px; background: #3d9e6e;
-    border: none; border-radius: 12px; color: #fff;
+    flex: 2; padding: 13px;
+    background: linear-gradient(170deg, #5a5a5a 0%, #3a3a3a 100%);
+    border: 1px solid #2a2a2a; border-bottom: 3px solid #1a1a1a;
+    border-radius: 12px; color: #fff;
     font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20);
+    transition: all 0.1s;
   }
-  .nk-ok:active { background: #2d7e56; }
+  .nk-ok:active { border-bottom-width: 1px; transform: translateY(2px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.20); }
   .hidden { display: none !important; }
   /* 出勤時間臨時変更テンキー専用スタイル */
   .shukkin-numpad-box {
-    background: #fff; border-radius: 20px;
+    background: linear-gradient(170deg, #f8f8f8 0%, #efefef 100%);
+    border-radius: 20px;
     padding: 20px 16px 16px; width: 300px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.08);
   }
   .shukkin-numpad-title {
     text-align: center; font-size: 13px; font-weight: 700;
     color: #b8355a; margin-bottom: 6px;
   }
-  .shukkin-numpad-date { text-align: center; font-size: 12px; color: #6a9e85; margin-bottom: 10px; }
+  .shukkin-numpad-date { text-align: center; font-size: 12px; color: #888; margin-bottom: 10px; }
   .shukkin-numpad-reset {
     text-align: center; font-size: 11px; color: #b8355a;
     margin-bottom: 10px; cursor: pointer; text-decoration: underline;
@@ -410,22 +458,26 @@
     transition: all 0.12s ease; border: none; line-height: 1;
   }
   .hdr-btn-save {
-    background: linear-gradient(160deg, #e05a2b 0%, #c0391a 100%);
-    color: #fff;
-    box-shadow: 0 3px 0 rgba(140,30,10,0.6), 0 4px 8px rgba(200,60,20,0.35);
+    background: linear-gradient(170deg, #fffae8 0%, #f5edcc 60%, #ede0b0 100%);
+    color: #c0185a;
+    border: 1px solid #e0d4a0;
+    box-shadow: 0 4px 0 #c8b878, 0 6px 10px rgba(160,130,40,0.25);
   }
+  .hdr-btn-save svg { stroke: #c0185a; }
   .hdr-btn-save:active {
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(2px);
+    box-shadow: 0 1px 0 #c8b878, inset 0 2px 4px rgba(0,0,0,0.12);
+    transform: translateY(3px);
   }
   .hdr-btn-load {
-    background: linear-gradient(160deg, #2563eb 0%, #1741b0 100%);
-    color: #fff;
-    box-shadow: 0 3px 0 rgba(15,40,140,0.6), 0 4px 8px rgba(37,99,235,0.35);
+    background: linear-gradient(170deg, #fffae8 0%, #f5edcc 60%, #ede0b0 100%);
+    color: #0b7285;
+    border: 1px solid #e0d4a0;
+    box-shadow: 0 4px 0 #c8b878, 0 6px 10px rgba(160,130,40,0.25);
   }
+  .hdr-btn-load svg { stroke: #0b7285; }
   .hdr-btn-load:active {
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(2px);
+    box-shadow: 0 1px 0 #c8b878, inset 0 2px 4px rgba(0,0,0,0.12);
+    transform: translateY(3px);
   }
   /* 警告モーダル */
   .alert-overlay {
@@ -771,16 +823,14 @@ function renderSettings() {
           <div class="settings-row-label">基準日のダイヤ番号</div>
           <div class="settings-row-sub">1〜${getCycle()}の番号</div>
         </div>
-        <input class="settings-input" type="number" id="set-dia"
-          inputmode="numeric" pattern="[0-9]*"
-          value="${s.baseDia}" min="1" max="${getCycle()}">
+        <div class="settings-input" id="set-dia" style="cursor:pointer;user-select:none"
+          onclick="openDiaNumpadForSetting('dia')">${s.baseDia}</div>
       </div>
 
       <div class="settings-row">
         <div class="settings-row-label">総ダイヤ数（サイクル）</div>
-        <input class="settings-input" type="number" id="set-cycle"
-          inputmode="numeric" pattern="[0-9]*"
-          value="${getCycle()}" min="1" max="99">
+        <div class="settings-input" id="set-cycle" style="cursor:pointer;user-select:none"
+          onclick="openDiaNumpadForSetting('cycle')">${getCycle()}</div>
       </div>
     </div>
 
@@ -916,8 +966,8 @@ function togglePreview() {
 
 function applySettings() {
   const dateVal  = document.getElementById('set-date').value;
-  const dia      = parseInt(document.getElementById('set-dia').value);
-  const cycle    = parseInt(document.getElementById('set-cycle').value);
+  const dia      = parseInt(document.getElementById('set-dia').textContent);
+  const cycle    = parseInt(document.getElementById('set-cycle').textContent);
   const wake     = (parseInt(document.getElementById('set-wake-h').value)||0)*60   + (parseInt(document.getElementById('set-wake-m').value)||0);
   const leave    = (parseInt(document.getElementById('set-leave-h').value)||0)*60  + (parseInt(document.getElementById('set-leave-m').value)||0);
   const arrive   = (parseInt(document.getElementById('set-arrive-h').value)||0)*60 + (parseInt(document.getElementById('set-arrive-m').value)||0);
@@ -1112,19 +1162,41 @@ function numpadOk() {
   closeNumpad();
 }
 
-// ダイヤ番号スポット変更テンキー
+// ダイヤ番号テンキー（スポット変更 & 設定入力 兼用）
 let diaNumpadDateKey = null;
 let diaNumpadVal = '1';
 let diaNumpadOriginal = 1;
+let diaNumpadMode = 'spot'; // 'spot' | 'dia' | 'cycle'
 
+// スポット変更（予定画面から呼ぶ既存API）
 function openDiaNumpad(dateKey, currentDia) {
+  diaNumpadMode = 'spot';
   diaNumpadDateKey = dateKey;
   diaNumpadOriginal = getDiaForDate(new Date(dateKey.replace(/-/g,'/')));
   diaNumpadVal = String(DIA_OVERRIDES[dateKey] ?? currentDia);
-  // 日付を日本語表示
   const d = new Date(dateKey.replace(/-/g,'/'));
+  document.getElementById('dia-numpad-title').textContent = 'ダイヤ番号を変更';
   document.getElementById('dia-numpad-date').textContent =
     d.toLocaleDateString('ja-JP', { month:'long', day:'numeric', weekday:'short' });
+  document.getElementById('dia-numpad-reset').style.display = '';
+  document.getElementById('dia-numpad-display').textContent = diaNumpadVal;
+  document.getElementById('dia-numpad-overlay').classList.remove('hidden');
+}
+
+// 設定画面から呼ぶ（type: 'dia' or 'cycle'）
+function openDiaNumpadForSetting(type) {
+  diaNumpadMode = type;
+  diaNumpadDateKey = null;
+  if (type === 'dia') {
+    diaNumpadVal = String(parseInt(document.getElementById('set-dia').textContent) || SETTINGS.baseDia || 1);
+    document.getElementById('dia-numpad-title').textContent = '基準日のダイヤ番号';
+    document.getElementById('dia-numpad-date').textContent = '1〜' + getCycle() + ' の範囲で入力';
+  } else {
+    diaNumpadVal = String(parseInt(document.getElementById('set-cycle').textContent) || SETTINGS.cycle || 57);
+    document.getElementById('dia-numpad-title').textContent = '総ダイヤ数（サイクル）';
+    document.getElementById('dia-numpad-date').textContent = '1〜999 の範囲で入力';
+  }
+  document.getElementById('dia-numpad-reset').style.display = 'none';
   document.getElementById('dia-numpad-display').textContent = diaNumpadVal;
   document.getElementById('dia-numpad-overlay').classList.remove('hidden');
 }
@@ -1134,21 +1206,20 @@ function closeDiaNumpad() {
 }
 
 function diaNumpadKey(k) {
+  const maxVal = diaNumpadMode === 'cycle' ? 999 : getCycle();
   if (k === 'C') { diaNumpadVal = ''; }
   else if (k === 'del') { diaNumpadVal = diaNumpadVal.length > 1 ? diaNumpadVal.slice(0,-1) : ''; }
   else {
     const next = diaNumpadVal === '' ? k : diaNumpadVal + k;
     let val = parseInt(next);
-    const cycle = getCycle();
-    if (val > cycle) val = cycle;
+    if (val > maxVal) val = maxVal;
     if (val < 1) val = 1;
     diaNumpadVal = String(val);
   }
-  document.getElementById('dia-numpad-display').textContent = diaNumpadVal;
+  document.getElementById('dia-numpad-display').textContent = diaNumpadVal || '';
 }
 
 function diaNumpadReset() {
-  // スポット上書きを削除して元のダイヤに戻す
   delete DIA_OVERRIDES[diaNumpadDateKey];
   saveDiaOverrides();
   closeDiaNumpad();
@@ -1157,21 +1228,25 @@ function diaNumpadReset() {
 
 function diaNumpadOk() {
   const val = parseInt(diaNumpadVal);
-  const cycle = getCycle();
-  if (isNaN(val) || val < 1 || val > cycle) {
+  const maxVal = diaNumpadMode === 'cycle' ? 999 : getCycle();
+  if (isNaN(val) || val < 1 || val > maxVal) {
     document.getElementById('dia-numpad-display').textContent = '!';
-    setTimeout(() => { document.getElementById('dia-numpad-display').textContent = diaNumpadVal; }, 600);
+    setTimeout(() => { document.getElementById('dia-numpad-display').textContent = diaNumpadVal || ''; }, 600);
     return;
   }
-  // 元のダイヤと同じなら上書きを削除
-  if (val === diaNumpadOriginal) {
-    delete DIA_OVERRIDES[diaNumpadDateKey];
+  if (diaNumpadMode === 'spot') {
+    if (val === diaNumpadOriginal) {
+      delete DIA_OVERRIDES[diaNumpadDateKey];
+    } else {
+      DIA_OVERRIDES[diaNumpadDateKey] = val;
+    }
+    saveDiaOverrides();
+    closeDiaNumpad();
+    render();
   } else {
-    DIA_OVERRIDES[diaNumpadDateKey] = val;
+    document.getElementById(diaNumpadMode === 'dia' ? 'set-dia' : 'set-cycle').textContent = val;
+    closeDiaNumpad();
   }
-  saveDiaOverrides();
-  closeDiaNumpad();
-  render();
 }
 
 updateClock();
@@ -1280,10 +1355,10 @@ setInterval(updateClock, 30000);
 <!-- ダイヤ番号変更テンキー -->
 <div id="dia-numpad-overlay" class="numpad-overlay hidden">
   <div class="dia-numpad-box">
-    <div class="dia-numpad-title">ダイヤ番号を変更</div>
+    <div class="dia-numpad-title" id="dia-numpad-title">ダイヤ番号を変更</div>
     <div class="dia-numpad-date" id="dia-numpad-date"></div>
     <div class="dia-numpad-display" id="dia-numpad-display">1</div>
-    <div class="dia-numpad-reset" onclick="diaNumpadReset()">🔄 元のダイヤに戻す</div>
+    <div class="dia-numpad-reset" id="dia-numpad-reset" onclick="diaNumpadReset()">🔄 元のダイヤに戻す</div>
     <div class="numpad-grid">
       <button class="nk" onclick="diaNumpadKey('7')">7</button>
       <button class="nk" onclick="diaNumpadKey('8')">8</button>
