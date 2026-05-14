@@ -739,7 +739,7 @@ function buildShiftCard(shifts, isKyukyu, isYobi) {
 
     return `
     <div class="shift-card">
-      ${shifts.length > 1 ? `<div class="shift-sublabel">${i === 0 ? '午前便' : '午後便'}</div>` : ''}
+      ${shifts.length > 1 ? `<div class="shift-sublabel">${i === 0 ? '中間前半' : '中間後半'}</div>` : ''}
       ${s.showOkibo ? `<div class="shift-row">
         <span class="shift-icon">⏰</span>
         <span class="shift-label">① 起床</span>
@@ -901,7 +901,7 @@ function renderSettings() {
 
     <!-- 2. 時間計算設定 -->
     <div class="settings-section">
-      <div class="settings-title">⏱️ 時間計算設定（勤務開始基準）</div>
+      <div class="settings-title">⏱️ 時間計算設定（出勤時間基準）</div>
 
       <div class="settings-row">
         <div>
@@ -1162,7 +1162,10 @@ function openNumpad(hInput, mInput, title) {
 }
 
 function selectSeg(seg) {
+  if (numpadSeg === 'h' && (numpadValH === '' || numpadValH === undefined)) numpadValH = '0';
+  if (numpadSeg === 'm' && (numpadValM === '' || numpadValM === undefined)) numpadValM = '0';
   numpadSeg = seg;
+  updateNumpadDisplay();
   document.getElementById('seg-h').classList.toggle('active', seg === 'h');
   document.getElementById('seg-m').classList.toggle('active', seg === 'm');
 }
@@ -1198,6 +1201,8 @@ function closeNumpad() {
 }
 
 function numpadOk() {
+  if (numpadValH === '' || numpadValH === undefined) numpadValH = '0';
+  if (numpadValM === '' || numpadValM === undefined) numpadValM = '0';
   if (numpadTargetH) numpadTargetH.value = parseInt(numpadValH) || 0;
   if (numpadTargetM) numpadTargetM.value = parseInt(numpadValM) || 0;
   closeNumpad();
@@ -1264,9 +1269,10 @@ function openDiaNumpadForSetting(type) {
   diaNumpadMode = type;
   diaNumpadDateKey = null;
   if (type === 'dia') {
+    var currentCycle = parseInt(document.getElementById('set-cycle')?.textContent) || getCycle();
     diaNumpadVal = String(parseInt(document.getElementById('set-dia').textContent) || SETTINGS.baseDia || 1);
     document.getElementById('dia-numpad-title').textContent = '基準日のダイヤ番号';
-    document.getElementById('dia-numpad-date').textContent = '1〜' + getCycle() + ' の範囲で入力';
+    document.getElementById('dia-numpad-date').textContent = '1〜' + currentCycle + ' の範囲で入力';
   } else {
     diaNumpadVal = String(parseInt(document.getElementById('set-cycle').textContent) || SETTINGS.cycle || 57);
     document.getElementById('dia-numpad-title').textContent = '総ダイヤ数（サイクル）';
@@ -1282,7 +1288,8 @@ function closeDiaNumpad() {
 }
 
 function diaNumpadKey(k) {
-  const maxVal = diaNumpadMode === 'cycle' ? 999 : getCycle();
+  const currentCycle = parseInt(document.getElementById('set-cycle')?.textContent) || getCycle();
+  const maxVal = diaNumpadMode === 'cycle' ? 999 : currentCycle;
   if (k === 'C') { diaNumpadVal = ''; }
   else if (k === 'del') { diaNumpadVal = diaNumpadVal.length > 1 ? diaNumpadVal.slice(0,-1) : ''; }
   else {
@@ -1360,10 +1367,8 @@ switchTab('week');
 })();
 
 
-// DOMが完全に構築された後に警告チェックを実行
-window.addEventListener('DOMContentLoaded', function() {
-  checkDefaultWarning();
-});
+// スクリプト末尾で直接呼び出し（DOMContentLoaded は既に発火済みのため）
+checkDefaultWarning();
 
 // 保存・読込ボタン：touchend のみ登録して Android の touch+click 二重発火を防ぐ
 (function() {
@@ -1386,7 +1391,6 @@ window.addEventListener('DOMContentLoaded', function() {
   addTapOnly('btn-load', loadAppFromFile);
 })();
 
-// 起動時にデフォルト値チェック（DOMContentLoaded で実行）
 
 // ===== 出勤時間（勤務開始）臨時変更テンキー =====
 let _skDateKey = null, _skIdx = 0, _skOrigTime = '', _skSeg = 'h';
@@ -1447,7 +1451,11 @@ function skCancel() {
 function skOk() {
   var h = parseInt(_skH) || 0;
   var m = parseInt(_skM) || 0;
-  if (h > 23 || m > 59) { return; }
+  if (h > 23 || m > 59) {
+    var disp = document.getElementById('sk-np-h-val');
+    if (disp) { var orig = disp.textContent; disp.textContent = '!'; setTimeout(function(){ disp.textContent = orig; }, 600); }
+    return;
+  }
   var newMin = h * 60 + m;
   var origMin = timeToMin(_skOrigTime);
   var okey = _skDateKey + '_' + _skIdx;
@@ -1458,6 +1466,16 @@ function skOk() {
   render();
 }
 setInterval(updateClock, 30000);
+
+// ⑤ 日付変わり目（深夜0時）に再描画
+(function scheduleMidnightRender() {
+  var now = new Date();
+  var msToMidnight = (new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)) - now + 500;
+  setTimeout(function() {
+    render();
+    scheduleMidnightRender();
+  }, msToMidnight);
+})();
 </script>
 
 <!-- 時間設定テンキー（設定画面用・body直下で固定） -->
