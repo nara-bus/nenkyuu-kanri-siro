@@ -163,9 +163,25 @@
     padding: 1px 8px;
     font-weight: 600;
   }
-  .dia-tag { font-size: 14px; color: #3a7a5e; font-weight: 600; cursor: pointer; }
-  .dia-tag:active { opacity: 0.7; }
-  .dia-override { color: #b07020; }
+  .dia-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #2d6e50; font-weight: 700;
+    background: linear-gradient(170deg, #e8f5ee 0%, #d0eadc 100%);
+    border: 1px solid rgba(60,140,95,0.45);
+    border-bottom: 3px solid rgba(40,110,70,0.50);
+    border-radius: 8px;
+    padding: 4px 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(40,110,70,0.22), 0 3px 6px rgba(40,110,70,0.10), inset 0 1px 0 rgba(255,255,255,0.75);
+    transition: all 0.1s ease;
+    user-select: none;
+  }
+  .dia-tag:active {
+    border-bottom-width: 1px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.12), 0 1px 0 rgba(40,110,70,0.20);
+    transform: translateY(2px);
+  }
+  .dia-override { color: #b07020; background: linear-gradient(170deg, #fdf3e0 0%, #f5e4c0 100%); border-color: rgba(160,100,20,0.40); border-bottom-color: rgba(140,80,10,0.45); box-shadow: 0 2px 0 rgba(140,80,10,0.20), 0 3px 6px rgba(140,80,10,0.10), inset 0 1px 0 rgba(255,255,255,0.75); }
   /* ダイヤ変更テンキー */
   .dia-numpad-box {
     background: linear-gradient(170deg, #f8f8f8 0%, #efefef 100%);
@@ -219,6 +235,25 @@
   .shift-icon { font-size: 18px; min-width: 26px; text-align: center; }
   .shift-label { flex: 1; font-size: 13px; color: #5a8a72; font-weight: 500; letter-spacing: 0.02em; }
   .shift-time { font-size: 16px; font-weight: 700; letter-spacing: 0.05em; }
+  /* 出勤時間・ダイヤ番号のタップボタン */
+  .shukkin-btn {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 16px; font-weight: 700; letter-spacing: 0.05em;
+    background: linear-gradient(170deg, #fff4f7 0%, #fce4ec 100%);
+    border: 1px solid rgba(180,60,90,0.35);
+    border-bottom: 3px solid rgba(160,40,70,0.40);
+    border-radius: 8px;
+    padding: 4px 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(160,40,70,0.18), 0 3px 6px rgba(160,40,70,0.08), inset 0 1px 0 rgba(255,255,255,0.80);
+    transition: all 0.1s ease;
+    user-select: none;
+  }
+  .shukkin-btn:active {
+    border-bottom-width: 1px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.12), 0 1px 0 rgba(160,40,70,0.18);
+    transform: translateY(2px);
+  }
   .rosen-row {
     display: flex;
     align-items: center;
@@ -494,11 +529,11 @@
   }
   .shukkin-numpad-title {
     text-align: center; font-size: 13px; font-weight: 700;
-    color: #b8355a; margin-bottom: 6px;
+    color: #444; margin-bottom: 6px;
   }
   .shukkin-numpad-date { text-align: center; font-size: 12px; color: #888; margin-bottom: 10px; }
   .shukkin-numpad-reset {
-    text-align: center; font-size: 11px; color: #b8355a;
+    text-align: center; font-size: 11px; color: #777;
     margin-bottom: 10px; cursor: pointer; text-decoration: underline;
   }
 
@@ -556,58 +591,147 @@
   .alert-ok:active { background: #2d7e56; }
 
 
-  /* ===== 一覧表 ===== */
-  .ich-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(60,120,90,0.10);
-  }
-  .ich-table {
-    border-collapse: collapse;
-    font-size: 11px;
-    width: 100%;
-    min-width: 360px;
-    background: rgba(255,252,240,0.97);
-    border-radius: 12px;
+  /* ===== 一覧表（カード型） ===== */
+  .ich-cards { display: flex; flex-direction: column; gap: 8px; }
+
+  /* カードヘッダー（タップで開閉） */
+  .ich-card {
+    border-radius: 16px;
+    border: 1px solid rgba(100,180,140,0.28);
+    border-bottom: 3px solid rgba(80,150,110,0.35);
+    background: linear-gradient(170deg, #fffef5 0%, rgba(255,252,235,0.97) 100%);
+    box-shadow: 0 4px 0 rgba(90,150,115,0.18), 0 6px 14px rgba(60,120,90,0.09), inset 0 1px 0 rgba(255,255,255,0.85);
     overflow: hidden;
   }
-  .ich-table thead tr {
-    background: linear-gradient(135deg, #4a9e78 0%, #3d8a68 100%);
+  .ich-card.ich-card-today {
+    border-color: rgba(60,155,105,0.5);
+    border-bottom-color: rgba(40,130,85,0.5);
+    box-shadow: 0 5px 0 rgba(40,130,85,0.25), 0 8px 18px rgba(60,155,105,0.14), inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+  .ich-card-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ich-card-header:active { background: rgba(0,0,0,0.03); }
+
+  /* 番号バブル */
+  .ich-card-num {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(170deg, #e8f5ee 0%, #d0eadc 100%);
+    border: 1px solid rgba(60,140,95,0.30);
+    box-shadow: 0 2px 0 rgba(40,110,70,0.18), inset 0 1px 0 rgba(255,255,255,0.8);
+    font-size: 20px; font-weight: 800; color: #2d5a47; line-height: 1;
+  }
+  .ich-card-today .ich-card-num {
+    background: linear-gradient(170deg, #f5c500 0%, #e8a800 100%);
+    border-color: rgba(180,130,0,0.35);
+    box-shadow: 0 2px 0 rgba(160,110,0,0.22), inset 0 1px 0 rgba(255,255,255,0.4);
     color: #fff;
   }
-  .ich-th { padding: 7px 3px; text-align: center; font-size: 10px; font-weight: 700; white-space: nowrap; }
-  .ich-th-dia { padding: 7px 4px; text-align: center; font-size: 10px; font-weight: 700; }
-  .ich-th-day { padding: 7px 3px; text-align: center; font-size: 10px; font-weight: 700; }
-  .ich-th-start { color: #7ee8f8; }
-  .ich-th-taikin { color: #ffd0d0; }
+  .ich-card-num-sub { font-size: 9px; font-weight: 700; margin-top: 1px; color: #5a8a70; }
+  .ich-card-today .ich-card-num-sub { color: rgba(255,255,255,0.85); }
 
-  .ich-row td { border-bottom: 1px solid rgba(100,180,140,0.15); vertical-align: middle; padding: 4px 3px; }
-  .ich-row.ich-last td { border-bottom: 2px solid rgba(80,150,110,0.30); }
-  .ich-row.ich-middle-row td { border-top: 1px dashed rgba(80,160,120,0.20); }
-  .ich-row.ich-middle-row td:not(.ich-dia):not(.ich-dia-cont) { background: transparent; }
+  .ich-card-info { flex: 1; min-width: 0; }
+  .ich-card-badges { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 3px; }
+  .ich-card-today-badge {
+    font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 99px;
+    background: #3d9e6e; color: #fff; letter-spacing: 0.05em;
+  }
+  .ich-card-type-badge {
+    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 99px;
+  }
+  .ich-card-preview {
+    font-size: 11px; color: #6a9e85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ich-card-preview .pv-time { font-weight: 700; color: #3a6e50; }
+  .ich-card-preview .pv-kyukyu { color: #e03a3a; font-weight: 700; }
 
-  .ich-dia { text-align: center; font-weight: 700; background: rgba(230,248,238,0.7); border-right: 2px solid rgba(80,150,110,0.25); padding: 4px 4px; border-bottom: none !important; }
-  .ich-dia-cont { background: rgba(230,248,238,0.45); border-top: none !important; }
-  .ich-row.ich-last .ich-dia, .ich-row.ich-kyukyu-row .ich-dia { border-bottom: 2px solid rgba(80,150,110,0.30) !important; }
-  .ich-dia-num { font-size: 14px; color: #2d5a47; font-weight: 800; }
-  .ich-badge { display: inline-block; font-size: 9px; margin-top: 2px; padding: 1px 4px; border-radius: 4px; font-weight: 700; }
-  .ich-middle { background: #d4f0e3; color: #2d7a50; }
-  .ich-teire  { background: #ffe8c0; color: #8a5500; }
-  .ich-biko   { background: #d4f0e0; color: #2a9a4a; }
+  .ich-card-chevron {
+    font-size: 12px; color: #90b8a0;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .ich-card.open .ich-card-chevron { transform: rotate(180deg); }
 
-  .ich-daytype { text-align: center; font-size: 10px; font-weight: 700; padding: 3px 4px; border-right: 1px solid rgba(100,180,140,0.15); white-space: nowrap; line-height: 1.3; }
-  .ich-hei  { color: #2d5a47; }
-  .ich-doy  { color: #1a5caa; }
-  .ich-nch  { color: #cc3333; }
-  .ich-hantei { font-size: 8px; font-weight: 600; color: #5a8a70; }
+  /* 展開エリア */
+  .ich-card-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.28s ease;
+    border-top: 0px solid rgba(100,180,140,0.18);
+  }
+  .ich-card.open .ich-card-body {
+    max-height: 600px;
+    border-top-width: 1px;
+  }
+  .ich-card-body-inner { padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
 
-  .ich-t { text-align: center; font-size: 11px; color: #2d4a3e; white-space: nowrap; }
-  .ich-start  { color: #4a35a8; font-weight: 700; }
-  .ich-taikin { color: #8a2020; font-weight: 700; }
-  .ich-rosen  { text-align: center; font-size: 9px; color: #5a7a68; white-space: nowrap; }
-  .ich-kyukyu { text-align: center; color: #e03a3a; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; background: transparent; }
-  .ich-kyukyu-row td { border-bottom: 2px solid rgba(80,150,110,0.25); }
+  /* 曜日セクション */
+  .ich-dow-block {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(100,180,140,0.18);
+  }
+  .ich-dow-block.doy { border-color: rgba(80,130,210,0.20); }
+  .ich-dow-block.nch { border-color: rgba(200,80,80,0.18); }
+
+  .ich-dow-header {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 10px;
+    font-size: 11px; font-weight: 700;
+    background: rgba(80,150,110,0.10);
+  }
+  .ich-dow-block.doy .ich-dow-header { background: rgba(80,130,210,0.10); color: #1a5caa; }
+  .ich-dow-block.nch .ich-dow-header { background: rgba(200,80,80,0.10); color: #cc3333; }
+  .ich-dow-header-label { color: #2d6e50; }
+  .ich-dow-block.doy .ich-dow-header-label { color: #1a5caa; }
+  .ich-dow-block.nch .ich-dow-header-label { color: #cc3333; }
+  .ich-dow-today-mark {
+    font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 99px;
+    background: #3d9e6e; color: #fff;
+  }
+  .ich-dow-block.doy .ich-dow-today-mark { background: #1a5caa; }
+  .ich-dow-block.nch .ich-dow-today-mark { background: #cc3333; }
+
+  .ich-dow-kyukyu {
+    padding: 8px 10px;
+    text-align: center; font-size: 11px; font-weight: 700;
+    color: #e03a3a; letter-spacing: 0.15em;
+  }
+
+  /* 時刻グリッド */
+  .ich-time-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(100,180,140,0.12);
+    padding: 1px;
+  }
+  .ich-time-cell {
+    background: rgba(255,252,240,0.98);
+    padding: 5px 4px; text-align: center;
+  }
+  .ich-time-cell-lbl { font-size: 9px; color: #90b0a0; font-weight: 600; margin-bottom: 2px; }
+  .ich-time-cell-val { font-size: 12px; font-weight: 700; color: #2d4a3e; white-space: nowrap; }
+  .ich-time-cell-val.start { color: #4a35a8; }
+  .ich-time-cell-val.taikin { color: #8a2020; }
+  .ich-rosen-row {
+    padding: 4px 10px 6px;
+    font-size: 10px; color: #5a7a68;
+  }
+
+  /* 中間ダイヤの区切り */
+  .ich-middle-sep {
+    font-size: 9px; font-weight: 700; color: #5a8a70;
+    text-align: center; padding: 3px 0 1px;
+    letter-spacing: 0.08em;
+  }
+
+  /* 今日ハイライト（カード型） → .ich-card-today で制御 */
 </style>
 </head>
 <body>
@@ -836,10 +960,10 @@ function buildShiftCard(shifts, isKyukyu, isYobi) {
         <span class="shift-label">③ 到着（会社）</span>
         <span class="shift-time" style="color:#4a90b8">${minToTime(tochakuMin)}</span>
       </div>` : ''}
-      ${s.showShukkinTime ? `<div class="shift-row" onclick="openShukkinNumpad('${dateKey}',${shiftIdx},'${sh.shukkinTime}')" style="cursor:pointer">
+      ${s.showShukkinTime ? `<div class="shift-row">
         <span class="shift-icon">▶️</span>
         <span class="shift-label">④ 出勤時間（勤務開始）</span>
-        <span class="shift-time" style="color:${workStartColor}">${minToTime(workStartMin)}${shukkinOverrideFlag}</span>
+        <button class="shukkin-btn" style="color:${workStartColor}" onclick="openShukkinNumpad('${dateKey}',${shiftIdx},'${sh.shukkinTime}')">${minToTime(workStartMin)}${shukkinOverrideFlag}</button>
       </div>` : ''}
       ${s.showTaikinTime ? `<div class="shift-row">
         <span class="shift-icon">⏹️</span>
@@ -879,9 +1003,9 @@ function buildDayBlock(date, isToday) {
         ${isToday ? '<span class="today-badge">TODAY</span>' : ''}
         <div class="tags">
           <span class="daytype-tag" style="background:${dayTypeBg};color:${dayTypeColor}">${dayTypeLabel}</span>
-          <span class="dia-tag${isOverride ? ' dia-override' : ''}"
+          <button class="dia-tag${isOverride ? ' dia-override' : ''}"
             onclick="openDiaNumpad('${dateKey}', ${sched.dia})"
-            title="タップでダイヤ番号を変更">ダイヤ ${sched.dia}${isOverride ? ' ✎' : ''}</span>
+            title="タップでダイヤ番号を変更">ダイヤ ${sched.dia}${isOverride ? ' ✎' : ''}</button>
 
         </div>
       </div>
@@ -921,9 +1045,6 @@ function switchTab(view, dir) {
   if (view === 'settings') renderSettings();
   if (view === 'ichiran') renderIchiran();
 
-  // 一覧表はich-wrap内で横スクロールするため overflow:hidden を解除
-  const contentEl = document.querySelector('.content');
-  if (contentEl) contentEl.style.overflowX = (view === 'ichiran') ? 'visible' : 'hidden';
 
   // incoming を準備
   incoming.style.transform = `translateX(${-slideDir * 100}%)`;
@@ -957,7 +1078,6 @@ function chk(key) { return SETTINGS[key] ? 'checked' : ''; }
 
 // ===== 一覧表レンダリング =====
 function renderIchiran() {
-  // PDF のデータをそのまま定義
   const ICHIRAN = [
     { dia:1,  type:'',       hei:{ okibo:'4:20', shukkin:'5:50', tochaku:'6:10', start:'6:54',  taikin:'16:30', rosen:'イオン・都',      kitan:'17:00' },
                              doy:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:44',  taikin:'14:20', rosen:'イオン',          kitan:'14:50' },
@@ -1106,108 +1226,136 @@ function renderIchiran() {
     { dia:57, type:'公休',   hei:null, doy:null, nch:null },
   ];
 
-  // diaCell: ダイヤ番号セルのHTML（rowspan不使用・毎行出力）
-  function diaCell(dia, badge, extra) {
-    const badgeHtml = badge ? `<br><span class="ich-badge ${badge.cls}">${badge.label}</span>` : '';
-    return `<td class="ich-dia${extra||''}">${'<span class="ich-dia-num">'+dia+'</span>'}${badgeHtml}</td>`;
-  }
-  function timeRow(dayData, isSecond) {
-    if (!dayData) return `<td colspan="7" class="ich-kyukyu">公　　　休</td>`;
-    if (dayData.type === '公休') return `<td colspan="7" class="ich-kyukyu">公　　　休</td>`;
-    const okibo  = isSecond ? (dayData.okibo2 ||'') : dayData.okibo;
-    const shukkin= isSecond ? (dayData.shukkin2||'') : dayData.shukkin;
-    const tochaku= isSecond ? (dayData.tochaku2||'') : dayData.tochaku;
-    const start  = isSecond ? (dayData.start2 ||'') : dayData.start;
-    const taikin = isSecond ? (dayData.taikin2||'') : dayData.taikin;
-    const rosen  = isSecond ? '' : (dayData.rosen||'');
-    const kitan  = isSecond ? (dayData.kitan2 ||'') : dayData.kitan;
-    return `<td class="ich-t">${okibo}</td><td class="ich-t">${shukkin}</td><td class="ich-t">${tochaku}</td><td class="ich-t ich-start">${start}</td><td class="ich-t ich-taikin">${taikin}</td><td class="ich-rosen">${rosen}</td><td class="ich-t">${kitan}</td>`;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayDia = getDiaForDate(today);
+  const todayDayType = getDayType(today);
+
+  function typeBadgeHtml(type) {
+    if (!type) return '';
+    const map = { '中間': ['#d4f0e3','#2d7a50'], '手入': ['#ffe8c0','#8a5500'], '予備': ['#d4f0e0','#2a9a4a'], '公休': ['#fde8e8','#cc3333'] };
+    const [bg, col] = map[type] || ['#eee','#555'];
+    return `<span class="ich-card-type-badge" style="background:${bg};color:${col}">${type}</span>`;
   }
 
-  let rows = '';
+  function previewHtml(d) {
+    if (d.type === '公休' || d.type === '予備' || d.type === '手入') {
+      return `<span class="pv-kyukyu">${d.type}</span>`;
+    }
+    // 今日の曜日に対応するシフトのstart時刻をプレビュー
+    const src = todayDayType === '土曜' ? d.doy : todayDayType === '日祝' ? d.nch : d.hei;
+    if (!src || src.type === '公休') return '<span class="pv-kyukyu">公休</span>';
+    const t = src.start || src.start2 || '';
+    return t ? `<span class="pv-time">${t}</span> 〜 <span class="pv-time">${src.taikin||src.taikin2||'—'}</span>` : '—';
+  }
+
+  function timeGridHtml(sd, isSecond) {
+    if (!sd) return '<div class="ich-dow-kyukyu">公　休</div>';
+    if (sd.type === '公休') return '<div class="ich-dow-kyukyu">公　休</div>';
+    if (sd.yobi) return '<div class="ich-dow-kyukyu">予　備</div>';
+    const ok  = isSecond ? sd.okibo2   : sd.okibo;
+    const sk  = isSecond ? sd.shukkin2 : sd.shukkin;
+    const tc  = isSecond ? sd.tochaku2 : sd.tochaku;
+    const st  = isSecond ? sd.start2   : sd.start;
+    const tk  = isSecond ? sd.taikin2  : sd.taikin;
+    const kt  = isSecond ? sd.kitan2   : sd.kitan;
+    const rs  = isSecond ? '' : (sd.rosen || '');
+    const cells = [
+      ['起床', ok||'—', ''],
+      ['出社', sk||'—', ''],
+      ['到着', tc||'—', ''],
+      ['出勤', st||'—', 'start'],
+      ['退勤', tk||'—', 'taikin'],
+      ['路線', rs||'—', ''],
+      ['帰宅', kt||'—', ''],
+    ].filter(([lbl]) => {
+      if (lbl==='起床') return SETTINGS.showOkibo;
+      if (lbl==='出社') return SETTINGS.showShukkin;
+      if (lbl==='到着') return SETTINGS.showTochaku;
+      if (lbl==='出勤') return SETTINGS.showShukkinTime;
+      if (lbl==='退勤') return SETTINGS.showTaikinTime;
+      if (lbl==='帰宅') return SETTINGS.showKikaku;
+      return true;
+    });
+    const cols = cells.length <= 4 ? cells.length : 4;
+    return `<div class="ich-time-grid" style="grid-template-columns:repeat(${cols},1fr)">
+      ${cells.map(([lbl,val,cls])=>`<div class="ich-time-cell"><div class="ich-time-cell-lbl">${lbl}</div><div class="ich-time-cell-val ${cls}">${val}</div></div>`).join('')}
+    </div>${rs ? `<div class="ich-rosen-row">🚌 ${rs}</div>` : ''}`;
+  }
+
+  function dowBlockHtml(label, cls, sd, isTodayDow, isMiddle) {
+    const todayMark = isTodayDow ? '<span class="ich-dow-today-mark">TODAY</span>' : '';
+    if (isMiddle) {
+      return `<div class="ich-dow-block ${cls}">
+        <div class="ich-dow-header"><span class="ich-dow-header-label">${label}</span>${todayMark}</div>
+        <div class="ich-middle-sep">▲ 前半</div>
+        ${timeGridHtml(sd, false)}
+        <div class="ich-middle-sep">▼ 後半</div>
+        ${timeGridHtml(sd, true)}
+      </div>`;
+    }
+    const inner = (!sd || sd.type === '公休')
+      ? '<div class="ich-dow-kyukyu">公　休</div>'
+      : timeGridHtml(sd, false);
+    return `<div class="ich-dow-block ${cls}">
+      <div class="ich-dow-header"><span class="ich-dow-header-label">${label}</span>${todayMark}</div>
+      ${inner}
+    </div>`;
+  }
+
+  let cards = '';
   for (const d of ICHIRAN) {
+    const isToday = d.dia === todayDia;
     const isMiddle = d.type === '中間';
     const isKyukyu = d.type === '公休';
-    const isTeire  = d.type === '手入';
-    const isBiko   = d.type === '予備';
+    const openDefault = isToday;
 
-    if (isKyukyu) {
-      rows += `<tr class="ich-row ich-kyukyu-row">
-        ${diaCell(d.dia, null, '')}
-        <td class="ich-daytype">—</td>
-        <td colspan="7" class="ich-kyukyu">公　　　休</td>
-      </tr>`;
-      continue;
-    }
-    if (isTeire || isBiko) {
-      const label = isTeire ? '手入' : '予備';
-      const badge = { cls: isTeire ? 'ich-teire' : 'ich-biko', label };
-      const bikoCell = isTeire ? `<td colspan="7" class="ich-kyukyu" style="color:#8a5500;font-weight:600">${label}</td>` : `<td colspan="7" class="ich-kyukyu" style="color:#2a9a4a;font-weight:700">${label}</td>`;
-      rows += `<tr class="ich-row">
-        ${diaCell(d.dia, badge, '')}
-        <td class="ich-daytype ich-hei">平</td>${d.hei ? timeRow(d.hei, false) : bikoCell}</tr>
-      <tr class="ich-row">
-        ${diaCell(d.dia, null, ' ich-dia-cont')}
-        <td class="ich-daytype ich-doy">土</td>${d.doy ? timeRow(d.doy, false) : bikoCell}</tr>
-      <tr class="ich-row ich-last">
-        ${diaCell(d.dia, null, ' ich-dia-cont')}
-        <td class="ich-daytype ich-nch">日祝</td>${d.nch ? timeRow(d.nch, false) : bikoCell}</tr>`;
-      continue;
-    }
-    if (isMiddle) {
-      // 土・日祝が公休の場合はrowが少なくなるのでrowspanを動的計算
-      const doyIsKyu = !d.doy || d.doy.type === '公休';
-      const nchIsKyu = !d.nch || d.nch.type === '公休';
-      // 平前半・平後半・土・日祝の最大4行。土日祝は公休でも行は出す
-      const midBadge = { cls: 'ich-middle', label: '中間' };
-      rows += `<tr class="ich-row">
-        ${diaCell(d.dia, midBadge, '')}
-        <td class="ich-daytype ich-hei">平<br><span class="ich-hantei">前半</span></td>${timeRow(d.hei, false)}</tr>
-      <tr class="ich-row ich-middle-row">
-        ${diaCell(d.dia, null, ' ich-dia-cont')}
-        <td class="ich-daytype ich-hei">平<br><span class="ich-hantei">後半</span></td>${timeRow(d.hei, true)}</tr>
-      <tr class="ich-row">
-        ${diaCell(d.dia, null, ' ich-dia-cont')}
-        <td class="ich-daytype ich-doy">土</td>${timeRow(d.doy, false)}</tr>
-      <tr class="ich-row ich-last">
-        ${diaCell(d.dia, null, ' ich-dia-cont')}
-        <td class="ich-daytype ich-nch">日祝</td>${timeRow(d.nch, false)}</tr>`;
-      continue;
-    }
-    // 通常
-    rows += `<tr class="ich-row">
-      ${diaCell(d.dia, null, '')}
-      <td class="ich-daytype ich-hei">平</td>${timeRow(d.hei, false)}</tr>
-    <tr class="ich-row">
-      ${diaCell(d.dia, null, ' ich-dia-cont')}
-      <td class="ich-daytype ich-doy">土</td>${timeRow(d.doy, false)}</tr>
-    <tr class="ich-row ich-last">
-      ${diaCell(d.dia, null, ' ich-dia-cont')}
-      <td class="ich-daytype ich-nch">日祝</td>${timeRow(d.nch, false)}</tr>`;
+    const heiTodayDow = isToday && todayDayType === '平日';
+    const doyTodayDow = isToday && todayDayType === '土曜';
+    const nchTodayDow = isToday && todayDayType === '日祝';
+
+    const bodyHtml = isKyukyu
+      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:13px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
+      : (d.type === '予備' || d.type === '手入')
+      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#8a6000;font-weight:700;font-size:13px;padding:6px 0">${d.type}</div></div>`
+      : `<div class="ich-card-body-inner">
+          ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle)}
+          ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false)}
+          ${dowBlockHtml('日祝', 'nch', d.nch, nchTodayDow, false)}
+        </div>`;
+
+    cards += `<div class="ich-card${isToday ? ' ich-card-today' : ''}${openDefault ? ' open' : ''}" id="ich-card-${d.dia}" onclick="toggleIchCard(${d.dia})">
+      <div class="ich-card-header">
+        <div class="ich-card-num">${d.dia}<div class="ich-card-num-sub">No.</div></div>
+        <div class="ich-card-info">
+          <div class="ich-card-badges">
+            ${isToday ? '<span class="ich-card-today-badge">TODAY</span>' : ''}
+            ${typeBadgeHtml(d.type)}
+          </div>
+          <div class="ich-card-preview">${previewHtml(d)}</div>
+        </div>
+        <div class="ich-card-chevron">▼</div>
+      </div>
+      <div class="ich-card-body">${bodyHtml}</div>
+    </div>`;
   }
 
   document.getElementById('view-ichiran').innerHTML = `
     <div class="section-label">📄 一覧表</div>
-    <div class="ich-wrap">
-      <table class="ich-table">
-        <thead>
-          <tr>
-            <th class="ich-th-dia">ダイヤ</th>
-            <th class="ich-th-day">曜日</th>
-            <th class="ich-th">起床</th>
-            <th class="ich-th">出勤</th>
-            <th class="ich-th">到着</th>
-            <th class="ich-th ich-th-start">出勤<br>時間</th>
-            <th class="ich-th ich-th-taikin">退勤<br>時間</th>
-            <th class="ich-th">路線</th>
-            <th class="ich-th">帰宅</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-    <div style="font-size:11px;color:#888;text-align:center;padding:8px 0 4px">出勤時間の２時間30分前に起床</div>
+    <div class="ich-cards">${cards}</div>
   `;
+
+  // 今日のカードにスクロール
+  if (todayDia) {
+    setTimeout(() => {
+      const el = document.getElementById('ich-card-' + todayDia);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+}
+
+function toggleIchCard(dia) {
+  const el = document.getElementById('ich-card-' + dia);
+  if (el) el.classList.toggle('open');
 }
 
 function renderSettings() {
@@ -1908,14 +2056,14 @@ setInterval(updateClock, 30000);
     <div class="shukkin-numpad-title">⚠️ 出勤時間を臨時変更</div>
     <div class="shukkin-numpad-date" id="sk-np-date"></div>
     <div class="numpad-display-row" style="margin-bottom:8px">
-      <div class="numpad-seg" id="sk-np-seg-h" onclick="_skSelectSeg('h')" style="border-color:#d06080;background:#fff0f4">
-        <div class="numpad-seg-val" id="sk-np-h-val" style="color:#b8355a">0</div>
-        <div class="numpad-seg-lbl" style="color:#b8355a">時</div>
+      <div class="numpad-seg" id="sk-np-seg-h" onclick="_skSelectSeg('h')">
+        <div class="numpad-seg-val" id="sk-np-h-val">0</div>
+        <div class="numpad-seg-lbl">時</div>
       </div>
-      <div class="numpad-colon" style="color:#b8355a">:</div>
-      <div class="numpad-seg" id="sk-np-seg-m" onclick="_skSelectSeg('m')" style="border-color:#d06080;background:#fff0f4">
-        <div class="numpad-seg-val" id="sk-np-m-val" style="color:#b8355a">00</div>
-        <div class="numpad-seg-lbl" style="color:#b8355a">分</div>
+      <div class="numpad-colon">:</div>
+      <div class="numpad-seg" id="sk-np-seg-m" onclick="_skSelectSeg('m')">
+        <div class="numpad-seg-val" id="sk-np-m-val">00</div>
+        <div class="numpad-seg-lbl">分</div>
       </div>
     </div>
     <div class="shukkin-numpad-reset" onclick="skReset()">🔄 元の出勤時間に戻す</div>
@@ -1935,7 +2083,7 @@ setInterval(updateClock, 30000);
     </div>
     <div class="numpad-actions">
       <button class="nk-cancel" onclick="skCancel()">キャン<br>セル</button>
-      <button class="nk-ok" style="background:#b8355a" onclick="skOk()">確定</button>
+      <button class="nk-ok" onclick="skOk()">確定</button>
     </div>
   </div>
 </div>
