@@ -656,7 +656,7 @@
     font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 99px;
   }
   .ich-card-preview {
-    font-size: 13px; color: #6a9e85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 16px; color: #6a9e85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .ich-card-preview .pv-time { font-weight: 700; color: #3a6e50; }
   .ich-card-preview .pv-kyukyu { color: #e03a3a; font-weight: 700; }
@@ -710,12 +710,12 @@
 
   .ich-dow-kyukyu {
     padding: 8px 10px;
-    text-align: center; font-size: 13px; font-weight: 700;
+    text-align: center; font-size: 16px; font-weight: 700;
     color: #e03a3a; letter-spacing: 0.15em;
   }
   .ich-dow-yobi {
     padding: 8px 10px;
-    text-align: center; font-size: 13px; font-weight: 700;
+    text-align: center; font-size: 16px; font-weight: 700;
     color: #2d4a3e; letter-spacing: 0.15em;
   }
 
@@ -729,10 +729,11 @@
   }
   .ich-time-cell {
     background: rgba(255,252,240,0.98);
-    padding: 5px 4px; text-align: center;
+    padding: 4px 6px;
+    display: flex; align-items: center; gap: 4px;
   }
-  .ich-time-cell-lbl { font-size: 11px; color: #90b0a0; font-weight: 600; margin-bottom: 2px; }
-  .ich-time-cell-val { font-size: 14px; font-weight: 700; color: #2d4a3e; white-space: nowrap; }
+  .ich-time-cell-lbl { font-size: 13px; color: #90b0a0; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+  .ich-time-cell-val { font-size: 16px; font-weight: 700; color: #2d4a3e; white-space: nowrap; }
   .ich-time-cell-val.start { color: #ff5cb8; }
   .ich-time-cell-val.taikin { color: #2979ff; }
   .ich-rosen-row {
@@ -754,8 +755,8 @@
   }
   .ich-rosen-row3 {
     background: rgba(255,252,240,0.98);
-    padding: 5px 10px;
-    font-size: 13px;
+    padding: 3px 10px;
+    font-size: 15px;
     font-weight: 700;
     color: #2d6e50;
     text-align: left;
@@ -1284,7 +1285,8 @@ function renderIchiran() {
 
   function typeBadgeHtml(type) {
     if (!type) return '';
-    const map = { '中間': ['#d4f0e3','#2d7a50'], '手入': ['#ffe8c0','#8a5500'], '予備': ['#d4f0e0','#2a9a4a'], '公休': ['#fde8e8','#cc3333'] };
+    if (type === '公休' || type === '予備') return '';
+    const map = { '中間': ['#d4f0e3','#2d7a50'], '手入': ['#ffe8c0','#8a5500'] };
     const [bg, col] = map[type] || ['#eee','#555'];
     return `<span class="ich-card-type-badge" style="background:${bg};color:${col}">${type}</span>`;
   }
@@ -1376,9 +1378,9 @@ function renderIchiran() {
     const nchTodayDow = isToday && todayDayType === '日祝';
 
     const bodyHtml = isKyukyu
-      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:13px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
+      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:16px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
       : (d.type === '予備')
-      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#2d4a3e;font-weight:700;font-size:13px;padding:6px 0">予　　　備</div></div>`
+      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#2d4a3e;font-weight:700;font-size:16px;padding:6px 0">予　　　備</div></div>`
       : `<div class="ich-card-body-inner">
           ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle)}
           ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false)}
