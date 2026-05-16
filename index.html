@@ -1045,7 +1045,6 @@ function switchTab(view, dir) {
   if (view === 'settings') renderSettings();
   if (view === 'ichiran') renderIchiran();
 
-
   // incoming を準備
   incoming.style.transform = `translateX(${-slideDir * 100}%)`;
   incoming.style.transition = 'none';
@@ -1068,6 +1067,22 @@ function switchTab(view, dir) {
         outgoing.style.transform = '';
         outgoing.style.transition = '';
         incoming.style.transition = '';
+
+        // タブ切替後のスクロール位置リセット
+        if (view === 'week' || view === 'settings') {
+          // 予定・設定は常にトップへ
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        } else if (view === 'ichiran') {
+          // 一覧表はtodayカードをヘッダー直下に表示
+          const todayCard = document.querySelector('.ich-card-today');
+          if (todayCard) {
+            const headerH = document.querySelector('.header')?.offsetHeight || 0;
+            const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+          }
+        }
       }, 230);
     });
   });
@@ -1344,13 +1359,6 @@ function renderIchiran() {
     <div class="ich-cards">${cards}</div>
   `;
 
-  // 今日のカードにスクロール
-  if (todayDia) {
-    setTimeout(() => {
-      const el = document.getElementById('ich-card-' + todayDia);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
-  }
 }
 
 function toggleIchCard(dia) {
