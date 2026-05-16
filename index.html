@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="出勤管理">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%233d9e6e'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle' fill='white'%3E%F0%9F%95%90%3C/text%3E%3C/svg%3E">
-<link id="manifest-placeholder" rel="manifest">
+<link rel="manifest" href="manifest.json">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -2163,66 +2163,12 @@ setInterval(updateClock, 30000);
 </div>
 
 <script>
-// ── PWA: manifest を動的生成してリンクに設定 ──
-(function() {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#3d9e6e"/><circle cx="96" cy="96" r="72" fill="white" opacity="0.15"/><text x="96" y="128" font-size="96" text-anchor="middle" fill="white">🕐</text></svg>`;
-  const icon = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
-  const manifest = {
-    name: "出勤時間管理",
-    short_name: "出勤管理",
-    description: "シフト勤務の出勤時間管理アプリ",
-    start_url: "./",
-    display: "standalone",
-    background_color: "#b8e0d2",
-    theme_color: "#3d9e6e",
-    orientation: "portrait",
-    icons: [
-      { src: icon, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
-      { src: icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  document.getElementById('manifest-placeholder').setAttribute('href', url);
-})();
-
-// ── PWA: Service Worker をインラインで動的登録 ──
-(function() {
-  if (!('serviceWorker' in navigator)) return;
-
-  const swCode = `
-const CACHE_NAME = 'kinmu-v1';
-self.addEventListener('install', e => {
-  self.skipWaiting();
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
-      if (res && res.status === 200 && res.type === 'basic') {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-      }
-      return res;
-    }))
-  );
-});
-`;
-
-  const swBlob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(swBlob);
-
-  navigator.serviceWorker.register(swUrl, { scope: './' })
+// ── PWA: Service Worker 登録 ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
     .then(() => console.log('SW registered'))
     .catch(err => console.warn('SW registration failed:', err));
-})();
+}
 </script>
 </body>
 </html>
