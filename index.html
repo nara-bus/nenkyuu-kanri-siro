@@ -234,20 +234,26 @@
   .shift-row:last-of-type { border-bottom: none; }
   .shift-icon { font-size: 18px; min-width: 26px; text-align: center; }
   .shift-label { flex: 1; font-size: 13px; color: #5a8a72; font-weight: 500; letter-spacing: 0.02em; }
-  .shift-time { font-size: 16px; font-weight: 700; letter-spacing: 0.05em; }
+  .shift-time { font-size: 16px; font-weight: 700; letter-spacing: 0.05em; padding: 4px 10px; }
   /* 出勤時間・ダイヤ番号のタップボタン */
   .shukkin-btn {
     display: inline-flex; align-items: center; gap: 3px;
     font-size: 16px; font-weight: 700; letter-spacing: 0.05em;
-    background: linear-gradient(170deg, #fff4f7 0%, #fce4ec 100%);
-    border: 1px solid rgba(180,60,90,0.35);
-    border-bottom: 3px solid rgba(160,40,70,0.40);
+    background: linear-gradient(170deg, #fefae8 0%, #faf2cc 100%);
+    border: 1px solid rgba(180,160,80,0.38);
+    border-bottom: 3px solid rgba(160,140,60,0.38);
     border-radius: 8px;
     padding: 4px 10px;
     cursor: pointer;
-    box-shadow: 0 2px 0 rgba(160,40,70,0.18), 0 3px 6px rgba(160,40,70,0.08), inset 0 1px 0 rgba(255,255,255,0.80);
+    box-shadow: 0 2px 0 rgba(160,140,60,0.16), 0 3px 6px rgba(160,140,60,0.08), inset 0 1px 0 rgba(255,255,255,0.80);
     transition: all 0.1s ease;
     user-select: none;
+  }
+  .shukkin-btn.override {
+    background: linear-gradient(170deg, #fff4f7 0%, #fce4ec 100%);
+    border: 1px solid rgba(180,60,90,0.35);
+    border-bottom: 3px solid rgba(160,40,70,0.40);
+    box-shadow: 0 2px 0 rgba(160,40,70,0.18), 0 3px 6px rgba(160,40,70,0.08), inset 0 1px 0 rgba(255,255,255,0.80);
   }
   .shukkin-btn:active {
     border-bottom-width: 1px;
@@ -646,7 +652,7 @@
     font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 99px;
   }
   .ich-card-preview {
-    font-size: 11px; color: #6a9e85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 13px; color: #6a9e85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .ich-card-preview .pv-time { font-weight: 700; color: #3a6e50; }
   .ich-card-preview .pv-kyukyu { color: #e03a3a; font-weight: 700; }
@@ -665,7 +671,7 @@
     border-top: 0px solid rgba(100,180,140,0.18);
   }
   .ich-card.open .ich-card-body {
-    max-height: 600px;
+    max-height: 900px;
     border-top-width: 1px;
   }
   .ich-card-body-inner { padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
@@ -682,7 +688,7 @@
   .ich-dow-header {
     display: flex; align-items: center; gap: 6px;
     padding: 5px 10px;
-    font-size: 11px; font-weight: 700;
+    font-size: 13px; font-weight: 700;
     background: rgba(80,150,110,0.10);
   }
   .ich-dow-block.doy .ich-dow-header { background: rgba(80,130,210,0.10); color: #1a5caa; }
@@ -691,7 +697,7 @@
   .ich-dow-block.doy .ich-dow-header-label { color: #1a5caa; }
   .ich-dow-block.nch .ich-dow-header-label { color: #cc3333; }
   .ich-dow-today-mark {
-    font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 99px;
+    font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 99px;
     background: #3d9e6e; color: #fff;
   }
   .ich-dow-block.doy .ich-dow-today-mark { background: #1a5caa; }
@@ -699,7 +705,7 @@
 
   .ich-dow-kyukyu {
     padding: 8px 10px;
-    text-align: center; font-size: 11px; font-weight: 700;
+    text-align: center; font-size: 13px; font-weight: 700;
     color: #e03a3a; letter-spacing: 0.15em;
   }
 
@@ -715,18 +721,39 @@
     background: rgba(255,252,240,0.98);
     padding: 5px 4px; text-align: center;
   }
-  .ich-time-cell-lbl { font-size: 9px; color: #90b0a0; font-weight: 600; margin-bottom: 2px; }
-  .ich-time-cell-val { font-size: 12px; font-weight: 700; color: #2d4a3e; white-space: nowrap; }
-  .ich-time-cell-val.start { color: #4a35a8; }
-  .ich-time-cell-val.taikin { color: #8a2020; }
+  .ich-time-cell-lbl { font-size: 11px; color: #90b0a0; font-weight: 600; margin-bottom: 2px; }
+  .ich-time-cell-val { font-size: 14px; font-weight: 700; color: #2d4a3e; white-space: nowrap; }
+  .ich-time-cell-val.start { color: #ff5cb8; }
+  .ich-time-cell-val.taikin { color: #2979ff; }
   .ich-rosen-row {
     padding: 4px 10px 6px;
     font-size: 10px; color: #5a7a68;
   }
 
+  /* 3行レイアウト（1行目:起床/出社/到着、2行目:出勤/退勤/帰宅、3行目:路線） */
+  .ich-time-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: rgba(100,180,140,0.12);
+    padding: 1px;
+  }
+  .ich-time-row {
+    display: grid;
+    gap: 1px;
+  }
+  .ich-rosen-row3 {
+    background: rgba(255,252,240,0.98);
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #2d6e50;
+    text-align: left;
+  }
+
   /* 中間ダイヤの区切り */
   .ich-middle-sep {
-    font-size: 9px; font-weight: 700; color: #5a8a70;
+    font-size: 11px; font-weight: 700; color: #5a8a70;
     text-align: center; padding: 3px 0 1px;
     letter-spacing: 0.08em;
   }
@@ -779,7 +806,7 @@
 <div class="footer">Bダイヤ 2026.4.1 ／ 57日サイクル（設定画面で基準日・ダイヤ番号を設定）</div>
 
 <script>
-const SCHEDULES = {"1": {"note": "1", "平日": {"okibo": "04:20", "shukkin": "05:50", "tochaku": "06:20", "shukkinTime": "06:54", "taikinTime": "16:30", "rosen": "イオン・都", "kikaku": "17:00"}, "土曜": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:44", "taikinTime": "14:20", "rosen": "イオン", "kikaku": "14:50"}, "日祝": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:44", "taikinTime": "14:20", "rosen": "", "kikaku": "14:50"}}, "2": {"note": "2", "平日": [{"okibo": "03:55", "shukkin": "05:25", "tochaku": "05:55", "shukkinTime": "06:25", "taikinTime": "09:07", "rosen": "シャープ", "kikaku": "09:40"}, {"okibo": "13:35", "shukkin": "15:05", "tochaku": "15:35", "shukkinTime": "16:05", "taikinTime": "21:01", "rosen": "", "kikaku": "21:35"}], "土曜": {"okibo": "06:20", "shukkin": "07:50", "tochaku": "08:20", "shukkinTime": "08:50", "taikinTime": "19:43", "rosen": "西大寺", "kikaku": "20:15"}, "日祝": {"okibo": "06:20", "shukkin": "07:50", "tochaku": "08:20", "shukkinTime": "08:50", "taikinTime": "19:43", "rosen": "", "kikaku": "20:15"}}, "3": {"note": "3", "平日": {"okibo": "05:35", "shukkin": "07:05", "tochaku": "07:35", "shukkinTime": "08:07", "taikinTime": "18:59", "rosen": "", "kikaku": "19:30"}, "土曜": {"okibo": "06:15", "shukkin": "07:45", "tochaku": "08:15", "shukkinTime": "08:49", "taikinTime": "16:08", "rosen": "イオン", "kikaku": "16:40"}, "日祝": {"okibo": "06:15", "shukkin": "07:45", "tochaku": "08:15", "shukkinTime": "08:49", "taikinTime": "16:08", "rosen": "", "kikaku": "16:40"}}, "4": {"note": "4", "平日": {"okibo": "03:45", "shukkin": "05:15", "tochaku": "05:45", "shukkinTime": "06:19", "taikinTime": "14:09", "rosen": "シャープ", "kikaku": "14:40"}, "土曜": {"okibo": "02:35", "shukkin": "04:05", "tochaku": "04:35", "shukkinTime": "05:07", "taikinTime": "10:53", "rosen": "天理", "kikaku": "11:25"}, "日祝": {"okibo": "02:35", "shukkin": "04:05", "tochaku": "04:35", "shukkinTime": "05:07", "taikinTime": "10:53", "rosen": "", "kikaku": "11:25"}}, "5": {"note": "5"}, "6": {"note": "6", "平日": {"yobi": true}, "土曜": {"yobi": true}, "日祝": {"yobi": true}}, "7": {"note": "7", "平日": {"okibo": "04:30", "shukkin": "06:00", "tochaku": "06:30", "shukkinTime": "07:00", "taikinTime": "19:37", "rosen": "シャープ", "kikaku": "20:10"}, "土曜": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:20", "taikinTime": "19:43", "rosen": "", "kikaku": "20:15"}, "日祝": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:20", "taikinTime": "19:43", "rosen": "", "kikaku": "20:15"}}, "8": {"note": "8", "平日": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "17:52", "rosen": "西大寺", "kikaku": "18:25"}, "土曜": {"okibo": "05:10", "shukkin": "06:40", "tochaku": "07:10", "shukkinTime": "07:42", "taikinTime": "16:50", "rosen": "", "kikaku": "17:20"}, "日祝": {"okibo": "05:10", "shukkin": "06:40", "tochaku": "07:10", "shukkinTime": "07:42", "taikinTime": "16:50", "rosen": "", "kikaku": "17:20"}}, "9": {"note": "9\n手入", "平日": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:19", "taikinTime": "11:47", "rosen": "天理", "kikaku": "12:20"}, "土曜": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:17", "taikinTime": "11:22", "rosen": "西大寺", "kikaku": "11:55"}, "日祝": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:17", "taikinTime": "11:22", "rosen": "", "kikaku": "11:55"}}, "10": {"note": "10"}, "11": {"note": "11", "平日": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:16", "taikinTime": "14:34", "rosen": "西大寺", "kikaku": "15:05"}, "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "12": {"note": "12", "平日": [{"okibo": "04:35", "shukkin": "06:05", "tochaku": "06:35", "shukkinTime": "07:05", "taikinTime": "10:56", "rosen": "山村・シャープ", "kikaku": "11:30"}, {"okibo": "14:35", "shukkin": "16:05", "tochaku": "16:35", "shukkinTime": "17:05", "taikinTime": "21:59", "rosen": "", "kikaku": "22:30"}], "土曜": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:22", "taikinTime": "18:40", "rosen": "イオン", "kikaku": "19:10"}, "日祝": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:22", "taikinTime": "18:40", "rosen": "", "kikaku": "19:10"}}, "13": {"note": "13", "平日": {"okibo": "09:55", "shukkin": "11:25", "tochaku": "11:55", "shukkinTime": "12:29", "taikinTime": "22:06", "rosen": "イオン", "kikaku": "22:40"}, "土曜": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:22", "taikinTime": "22:05", "rosen": "", "kikaku": "22:35"}, "日祝": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:22", "taikinTime": "22:05", "rosen": "", "kikaku": "22:35"}}, "14": {"note": "14", "平日": {"okibo": "14:25", "shukkin": "15:55", "tochaku": "16:25", "shukkinTime": "16:58", "taikinTime": "+00:18", "rosen": "シャープ", "kikaku": "+00:50"}, "土曜": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:02", "taikinTime": "23:04", "rosen": "", "kikaku": "23:35"}, "日祝": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:02", "taikinTime": "23:04", "rosen": "", "kikaku": "23:35"}}, "15": {"note": "15"}, "16": {"note": "16"}, "17": {"note": "17", "平日": {"okibo": "04:25", "shukkin": "05:55", "tochaku": "06:25", "shukkinTime": "06:57", "taikinTime": "18:38", "rosen": "天理", "kikaku": "19:10"}, "土曜": {"okibo": "04:15", "shukkin": "05:45", "tochaku": "06:15", "shukkinTime": "06:48", "taikinTime": "18:07", "rosen": "", "kikaku": "18:40"}, "日祝": {"okibo": "04:15", "shukkin": "05:45", "tochaku": "06:15", "shukkinTime": "06:48", "taikinTime": "18:07", "rosen": "", "kikaku": "18:40"}}, "18": {"note": "18", "平日": {"okibo": "03:45", "shukkin": "05:15", "tochaku": "05:45", "shukkinTime": "06:19", "taikinTime": "19:28", "rosen": "阪奈", "kikaku": "20:00"}, "土曜": {"okibo": "05:25", "shukkin": "06:55", "tochaku": "07:25", "shukkinTime": "08:00", "taikinTime": "19:29", "rosen": "", "kikaku": "20:00"}, "日祝": {"okibo": "05:25", "shukkin": "06:55", "tochaku": "07:25", "shukkinTime": "08:00", "taikinTime": "19:29", "rosen": "", "kikaku": "20:00"}}, "19": {"note": "19", "平日": {"okibo": "04:25", "shukkin": "05:55", "tochaku": "06:25", "shukkinTime": "06:59", "taikinTime": "19:05", "rosen": "シャープ", "kikaku": "19:35"}, "土曜": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:13", "taikinTime": "14:19", "rosen": "", "kikaku": "14:50"}, "日祝": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:13", "taikinTime": "14:19", "rosen": "", "kikaku": "14:50"}}, "20": {"note": "20", "平日": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:14", "taikinTime": "14:14", "rosen": "西大寺", "kikaku": "14:45"}, "土曜": {"okibo": "02:25", "shukkin": "03:55", "tochaku": "04:25", "shukkinTime": "04:59", "taikinTime": "11:49", "rosen": "シャープ", "kikaku": "12:20"}, "日祝": {"okibo": "02:25", "shukkin": "03:55", "tochaku": "04:25", "shukkinTime": "04:59", "taikinTime": "11:49", "rosen": "", "kikaku": "12:20"}}, "21": {"note": "21"}, "22": {"note": "22", "平日": [{"okibo": "02:50", "shukkin": "04:20", "tochaku": "04:50", "shukkinTime": "05:21", "taikinTime": "08:10", "rosen": "シャープ", "kikaku": "08:45"}, {"okibo": "11:00", "shukkin": "12:30", "tochaku": "13:00", "shukkinTime": "13:30", "taikinTime": "19:51", "rosen": "", "kikaku": "20:25"}], "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "23": {"note": "23", "平日": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:41", "taikinTime": "19:15", "rosen": "阪奈", "kikaku": "19:45"}, "土曜": {"okibo": "06:30", "shukkin": "08:00", "tochaku": "08:30", "shukkinTime": "09:00", "taikinTime": "19:15", "rosen": "", "kikaku": "19:45"}, "日祝": {"okibo": "06:30", "shukkin": "08:00", "tochaku": "08:30", "shukkinTime": "09:00", "taikinTime": "19:15", "rosen": "", "kikaku": "19:45"}}, "24": {"note": "24", "平日": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:40", "taikinTime": "16:06", "rosen": "天理", "kikaku": "16:40"}, "土曜": {"okibo": "05:20", "shukkin": "06:50", "tochaku": "07:20", "shukkinTime": "07:52", "taikinTime": "16:55", "rosen": "イオン", "kikaku": "17:25"}, "日祝": {"okibo": "05:20", "shukkin": "06:50", "tochaku": "07:20", "shukkinTime": "07:52", "taikinTime": "16:55", "rosen": "", "kikaku": "17:25"}}, "25": {"note": "25\n手入", "平日": {"okibo": "03:05", "shukkin": "04:35", "tochaku": "05:05", "shukkinTime": "05:38", "taikinTime": "14:50", "rosen": "天理", "kikaku": "15:20"}, "土曜": {"okibo": "03:25", "shukkin": "04:55", "tochaku": "05:25", "shukkinTime": "05:59", "taikinTime": "14:40", "rosen": "シャープ", "kikaku": "15:10"}, "日祝": {"okibo": "03:25", "shukkin": "04:55", "tochaku": "05:25", "shukkinTime": "05:59", "taikinTime": "14:40", "rosen": "", "kikaku": "15:10"}}, "26": {"note": "26"}, "27": {"note": "27", "平日": [{"okibo": "04:55", "shukkin": "06:25", "tochaku": "06:55", "shukkinTime": "07:25", "taikinTime": "10:09", "rosen": "シャープ・天理", "kikaku": "10:40"}, {"okibo": "14:00", "shukkin": "15:30", "tochaku": "16:00", "shukkinTime": "16:30", "taikinTime": "21:41", "rosen": "", "kikaku": "22:15"}], "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "28": {"note": "28", "平日": {"okibo": "10:55", "shukkin": "12:25", "tochaku": "12:55", "shukkinTime": "13:28", "taikinTime": "22:07", "rosen": "西大寺", "kikaku": "22:40"}, "土曜": {"okibo": "10:45", "shukkin": "12:15", "tochaku": "12:45", "shukkinTime": "13:18", "taikinTime": "20:43", "rosen": "", "kikaku": "21:15"}, "日祝": {"okibo": "10:45", "shukkin": "12:15", "tochaku": "12:45", "shukkinTime": "13:18", "taikinTime": "20:43", "rosen": "", "kikaku": "21:15"}}, "29": {"note": "29", "平日": {"okibo": "15:00", "shukkin": "16:30", "tochaku": "17:00", "shukkinTime": "17:30", "taikinTime": "+00:41", "rosen": "シャープ", "kikaku": "+01:15"}, "土曜": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:20", "taikinTime": "21:03", "rosen": "", "kikaku": "21:35"}, "日祝": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:20", "taikinTime": "21:03", "rosen": "", "kikaku": "21:35"}}, "30": {"note": "30", "平日": {"okibo": "13:35", "shukkin": "15:05", "tochaku": "15:35", "shukkinTime": "16:08", "taikinTime": "+00:20", "rosen": "天理", "kikaku": "+00:50"}, "土曜": {"okibo": "13:55", "shukkin": "15:25", "tochaku": "15:55", "shukkinTime": "16:29", "taikinTime": "+00:19", "rosen": "シャープ", "kikaku": "+00:50"}, "日祝": {"okibo": "13:55", "shukkin": "15:25", "tochaku": "15:55", "shukkinTime": "16:29", "taikinTime": "+00:19", "rosen": "", "kikaku": "+00:50"}}, "31": {"note": "31"}, "32": {"note": "32"}, "33": {"note": "33", "平日": [{"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "10:44", "rosen": "天理・西大寺", "kikaku": "11:15"}, {"okibo": "13:50", "shukkin": "15:20", "tochaku": "15:50", "shukkinTime": "16:20", "taikinTime": "21:28", "rosen": "", "kikaku": "22:00"}], "土曜": {"okibo": "07:25", "shukkin": "08:55", "tochaku": "09:25", "shukkinTime": "09:59", "taikinTime": "20:41", "rosen": "天理", "kikaku": "21:15"}, "日祝": {"okibo": "07:25", "shukkin": "08:55", "tochaku": "09:25", "shukkinTime": "09:59", "taikinTime": "20:41", "rosen": "", "kikaku": "21:15"}}, "34": {"note": "34", "平日": {"okibo": "14:05", "shukkin": "15:35", "tochaku": "16:05", "shukkinTime": "16:35", "taikinTime": "22:41", "rosen": "シャープ", "kikaku": "23:15"}, "土曜": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:03", "taikinTime": "23:03", "rosen": "イオン", "kikaku": "23:35"}, "日祝": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:03", "taikinTime": "23:03", "rosen": "", "kikaku": "23:35"}}, "35": {"note": "35", "平日": {"okibo": "13:05", "shukkin": "14:35", "tochaku": "15:05", "shukkinTime": "15:37", "taikinTime": "22:43", "rosen": "天理", "kikaku": "23:15"}, "土曜": {"okibo": "13:20", "shukkin": "14:50", "tochaku": "15:20", "shukkinTime": "15:54", "taikinTime": "22:08", "rosen": "", "kikaku": "22:40"}, "日祝": {"okibo": "13:20", "shukkin": "14:50", "tochaku": "15:20", "shukkinTime": "15:54", "taikinTime": "22:08", "rosen": "", "kikaku": "22:40"}}, "36": {"note": "36", "平日": {"okibo": "08:10", "shukkin": "09:40", "tochaku": "10:10", "shukkinTime": "10:42", "taikinTime": "19:20", "rosen": "シャープ", "kikaku": "19:50"}, "土曜": {"okibo": "09:30", "shukkin": "11:00", "tochaku": "11:30", "shukkinTime": "12:02", "taikinTime": "20:23", "rosen": "", "kikaku": "20:55"}, "日祝": {"okibo": "09:30", "shukkin": "11:00", "tochaku": "11:30", "shukkinTime": "12:02", "taikinTime": "20:23", "rosen": "", "kikaku": "20:55"}}, "37": {"note": "37"}, "38": {"note": "38", "平日": {"okibo": "04:30", "shukkin": "06:00", "tochaku": "06:30", "shukkinTime": "07:00", "taikinTime": "19:26", "rosen": "阪奈", "kikaku": "20:00"}, "土曜": {"okibo": "05:55", "shukkin": "07:25", "tochaku": "07:55", "shukkinTime": "08:28", "taikinTime": "18:59", "rosen": "", "kikaku": "19:30"}, "日祝": {"okibo": "05:55", "shukkin": "07:25", "tochaku": "07:55", "shukkinTime": "08:28", "taikinTime": "18:59", "rosen": "", "kikaku": "19:30"}}, "39": {"note": "39", "平日": [{"okibo": "04:35", "shukkin": "06:05", "tochaku": "06:35", "shukkinTime": "07:09", "taikinTime": "10:22", "rosen": "シャープ・天理", "kikaku": "10:55"}, {"okibo": "13:40", "shukkin": "15:10", "tochaku": "15:40", "shukkinTime": "16:10", "taikinTime": "22:08", "rosen": "", "kikaku": "22:40"}], "土曜": {"okibo": "07:05", "shukkin": "08:35", "tochaku": "09:05", "shukkinTime": "09:37", "taikinTime": "20:24", "rosen": "イオン", "kikaku": "20:55"}, "日祝": {"okibo": "07:05", "shukkin": "08:35", "tochaku": "09:05", "shukkinTime": "09:37", "taikinTime": "20:24", "rosen": "", "kikaku": "20:55"}}, "40": {"note": "40", "平日": {"okibo": "10:35", "shukkin": "12:05", "tochaku": "12:35", "shukkinTime": "13:09", "taikinTime": "22:58", "rosen": "イオン", "kikaku": "23:30"}, "土曜": {"okibo": "11:20", "shukkin": "12:50", "tochaku": "13:20", "shukkinTime": "13:53", "taikinTime": "21:24", "rosen": "山村・天理", "kikaku": "21:55"}, "日祝": {"okibo": "11:20", "shukkin": "12:50", "tochaku": "13:20", "shukkinTime": "13:53", "taikinTime": "21:24", "rosen": "", "kikaku": "21:55"}}, "41": {"note": "41", "平日": {"okibo": "11:10", "shukkin": "12:40", "tochaku": "13:10", "shukkinTime": "13:42", "taikinTime": "22:29", "rosen": "シャープ", "kikaku": "23:00"}, "土曜": {"okibo": "10:30", "shukkin": "12:00", "tochaku": "12:30", "shukkinTime": "13:02", "taikinTime": "22:43", "rosen": "", "kikaku": "23:15"}, "日祝": {"okibo": "10:30", "shukkin": "12:00", "tochaku": "12:30", "shukkinTime": "13:02", "taikinTime": "22:43", "rosen": "", "kikaku": "23:15"}}, "42": {"note": "42"}, "43": {"note": "43", "平日": {"okibo": "13:00", "shukkin": "14:30", "tochaku": "15:00", "shukkinTime": "15:30", "taikinTime": "22:18", "rosen": "シャープ", "kikaku": "22:50"}, "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "44": {"note": "44", "平日": {"okibo": "12:40", "shukkin": "14:10", "tochaku": "14:40", "shukkinTime": "15:12", "taikinTime": "+00:17", "rosen": "イオン", "kikaku": "+00:50"}, "土曜": {"okibo": "13:00", "shukkin": "14:30", "tochaku": "15:00", "shukkinTime": "15:32", "taikinTime": "+00:13", "rosen": "", "kikaku": "+00:45"}, "日祝": {"okibo": "13:00", "shukkin": "14:30", "tochaku": "15:00", "shukkinTime": "15:32", "taikinTime": "+00:13", "rosen": "", "kikaku": "+00:45"}}, "45": {"note": "45", "平日": {"okibo": "14:50", "shukkin": "16:20", "tochaku": "16:50", "shukkinTime": "17:24", "taikinTime": "+00:23", "rosen": "天理", "kikaku": "+00:55"}, "土曜": {"okibo": "14:50", "shukkin": "16:20", "tochaku": "16:50", "shukkinTime": "17:20", "taikinTime": "23:34", "rosen": "", "kikaku": "+00:05"}, "日祝": {"okibo": "14:50", "shukkin": "16:20", "tochaku": "16:50", "shukkinTime": "17:20", "taikinTime": "23:34", "rosen": "", "kikaku": "+00:05"}}, "46": {"note": "46", "平日": {"okibo": "13:10", "shukkin": "14:40", "tochaku": "15:10", "shukkinTime": "15:44", "taikinTime": "23:52", "rosen": "西大寺", "kikaku": "+00:25"}, "土曜": {"okibo": "13:10", "shukkin": "14:40", "tochaku": "15:10", "shukkinTime": "15:44", "taikinTime": "22:32", "rosen": "", "kikaku": "23:05"}, "日祝": {"okibo": "13:10", "shukkin": "14:40", "tochaku": "15:10", "shukkinTime": "15:44", "taikinTime": "22:32", "rosen": "", "kikaku": "23:05"}}, "47": {"note": "47"}, "48": {"note": "48"}, "49": {"note": "49", "平日": [{"okibo": "03:35", "shukkin": "05:05", "tochaku": "05:35", "shukkinTime": "06:09", "taikinTime": "09:01", "rosen": "シャープ", "kikaku": "09:35"}, {"okibo": "14:00", "shukkin": "15:30", "tochaku": "16:00", "shukkinTime": "16:32", "taikinTime": "19:54", "rosen": "", "kikaku": "20:25"}], "土曜": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:10", "taikinTime": "13:35", "rosen": "", "kikaku": "14:05"}, "日祝": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:10", "taikinTime": "13:35", "rosen": "", "kikaku": "14:05"}}, "50": {"note": "50", "平日": {"okibo": "05:05", "shukkin": "06:35", "tochaku": "07:05", "shukkinTime": "07:36", "taikinTime": "18:45", "rosen": "阪奈", "kikaku": "19:15"}, "土曜": {"okibo": "06:00", "shukkin": "07:30", "tochaku": "08:00", "shukkinTime": "08:30", "taikinTime": "18:45", "rosen": "", "kikaku": "19:15"}, "日祝": {"okibo": "06:00", "shukkin": "07:30", "tochaku": "08:00", "shukkinTime": "08:30", "taikinTime": "18:45", "rosen": "", "kikaku": "19:15"}}, "51": {"note": "51", "平日": {"okibo": "03:55", "shukkin": "05:25", "tochaku": "05:55", "shukkinTime": "06:26", "taikinTime": "19:42", "rosen": "天理", "kikaku": "20:15"}, "土曜": {"okibo": "03:50", "shukkin": "05:20", "tochaku": "05:50", "shukkinTime": "06:21", "taikinTime": "18:25", "rosen": "", "kikaku": "18:55"}, "日祝": {"okibo": "03:50", "shukkin": "05:20", "tochaku": "05:50", "shukkinTime": "06:21", "taikinTime": "18:25", "rosen": "", "kikaku": "18:55"}}, "52": {"note": "52", "平日": {"okibo": "03:05", "shukkin": "04:35", "tochaku": "05:05", "shukkinTime": "05:38", "taikinTime": "16:20", "rosen": "山村", "kikaku": "16:50"}, "土曜": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:11", "taikinTime": "13:29", "rosen": "", "kikaku": "14:00"}, "日祝": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:11", "taikinTime": "13:29", "rosen": "", "kikaku": "14:00"}}, "53": {"note": "53"}, "54": {"note": "54", "平日": [{"okibo": "03:30", "shukkin": "05:00", "tochaku": "05:30", "shukkinTime": "06:01", "taikinTime": "09:27", "rosen": "山村", "kikaku": "10:00"}, {"okibo": "11:20", "shukkin": "12:50", "tochaku": "13:20", "shukkinTime": "13:53", "taikinTime": "19:46", "rosen": "", "kikaku": "20:20"}], "土曜": {"okibo": "03:35", "shukkin": "05:05", "tochaku": "05:35", "shukkinTime": "06:08", "taikinTime": "13:51", "rosen": "", "kikaku": "14:25"}, "日祝": {"okibo": "03:35", "shukkin": "05:05", "tochaku": "05:35", "shukkinTime": "06:08", "taikinTime": "13:51", "rosen": "", "kikaku": "14:25"}}, "55": {"note": "55", "平日": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:39", "taikinTime": "18:00", "rosen": "阪奈", "kikaku": "18:30"}, "土曜": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "18:00", "rosen": "", "kikaku": "18:30"}, "日祝": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "18:00", "rosen": "", "kikaku": "18:30"}}, "56": {"note": "56", "平日": {"okibo": "04:15", "shukkin": "05:45", "tochaku": "06:15", "shukkinTime": "06:45", "taikinTime": "18:46", "rosen": "西大寺", "kikaku": "19:20"}, "土曜": {"okibo": "05:45", "shukkin": "07:15", "tochaku": "07:45", "shukkinTime": "08:20", "taikinTime": "18:45", "rosen": "", "kikaku": "19:15"}, "日祝": {"okibo": "05:45", "shukkin": "07:15", "tochaku": "07:45", "shukkinTime": "08:20", "taikinTime": "18:45", "rosen": "", "kikaku": "19:15"}}, "57": {"note": "57"}};
+const SCHEDULES = {"1": {"note": "1", "平日": {"okibo": "04:20", "shukkin": "05:50", "tochaku": "06:20", "shukkinTime": "06:54", "taikinTime": "16:30", "rosen": "イオン・都", "kikaku": "17:00"}, "土曜": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:44", "taikinTime": "14:20", "rosen": "イオン", "kikaku": "14:50"}, "日祝": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:44", "taikinTime": "14:20", "rosen": "イオン", "kikaku": "14:50"}}, "2": {"note": "2", "平日": [{"okibo": "03:55", "shukkin": "05:25", "tochaku": "05:55", "shukkinTime": "06:25", "taikinTime": "09:07", "rosen": "シャープ", "kikaku": "09:40"}, {"okibo": "13:35", "shukkin": "15:05", "tochaku": "15:35", "shukkinTime": "16:05", "taikinTime": "21:01", "rosen": "シャープ", "kikaku": "21:35"}], "土曜": {"okibo": "06:20", "shukkin": "07:50", "tochaku": "08:20", "shukkinTime": "08:50", "taikinTime": "19:43", "rosen": "西大寺", "kikaku": "20:15"}, "日祝": {"okibo": "06:20", "shukkin": "07:50", "tochaku": "08:20", "shukkinTime": "08:50", "taikinTime": "19:43", "rosen": "西大寺", "kikaku": "20:15"}}, "3": {"note": "3", "平日": {"okibo": "05:35", "shukkin": "07:05", "tochaku": "07:35", "shukkinTime": "08:07", "taikinTime": "18:59", "rosen": "", "kikaku": "19:30"}, "土曜": {"okibo": "06:15", "shukkin": "07:45", "tochaku": "08:15", "shukkinTime": "08:49", "taikinTime": "16:08", "rosen": "イオン", "kikaku": "16:40"}, "日祝": {"okibo": "06:15", "shukkin": "07:45", "tochaku": "08:15", "shukkinTime": "08:49", "taikinTime": "16:08", "rosen": "イオン", "kikaku": "16:40"}}, "4": {"note": "4", "平日": {"okibo": "03:45", "shukkin": "05:15", "tochaku": "05:45", "shukkinTime": "06:19", "taikinTime": "14:09", "rosen": "シャープ", "kikaku": "14:40"}, "土曜": {"okibo": "02:35", "shukkin": "04:05", "tochaku": "04:35", "shukkinTime": "05:07", "taikinTime": "10:53", "rosen": "天理", "kikaku": "11:25"}, "日祝": {"okibo": "02:35", "shukkin": "04:05", "tochaku": "04:35", "shukkinTime": "05:07", "taikinTime": "10:53", "rosen": "天理", "kikaku": "11:25"}}, "5": {"note": "5"}, "6": {"note": "6", "平日": {"yobi": true}, "土曜": {"yobi": true}, "日祝": {"yobi": true}}, "7": {"note": "7", "平日": {"okibo": "04:30", "shukkin": "06:00", "tochaku": "06:30", "shukkinTime": "07:00", "taikinTime": "19:37", "rosen": "シャープ", "kikaku": "20:10"}, "土曜": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:20", "taikinTime": "19:43", "rosen": "シャープ", "kikaku": "20:15"}, "日祝": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:20", "taikinTime": "19:43", "rosen": "", "kikaku": "20:15"}}, "8": {"note": "8", "平日": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "17:52", "rosen": "西大寺", "kikaku": "18:25"}, "土曜": {"okibo": "05:10", "shukkin": "06:40", "tochaku": "07:10", "shukkinTime": "07:42", "taikinTime": "16:50", "rosen": "西大寺", "kikaku": "17:20"}, "日祝": {"okibo": "05:10", "shukkin": "06:40", "tochaku": "07:10", "shukkinTime": "07:42", "taikinTime": "16:50", "rosen": "", "kikaku": "17:20"}}, "9": {"note": "9\n手入", "平日": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:19", "taikinTime": "11:47", "rosen": "天理", "kikaku": "12:20"}, "土曜": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:17", "taikinTime": "11:22", "rosen": "西大寺", "kikaku": "11:55"}, "日祝": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:17", "taikinTime": "11:22", "rosen": "西大寺", "kikaku": "11:55"}}, "10": {"note": "10"}, "11": {"note": "11", "平日": {"okibo": "02:45", "shukkin": "04:15", "tochaku": "04:45", "shukkinTime": "05:16", "taikinTime": "14:34", "rosen": "西大寺", "kikaku": "15:05"}, "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "12": {"note": "12", "平日": [{"okibo": "04:35", "shukkin": "06:05", "tochaku": "06:35", "shukkinTime": "07:05", "taikinTime": "10:56", "rosen": "山村・シャープ", "kikaku": "11:30"}, {"okibo": "14:35", "shukkin": "16:05", "tochaku": "16:35", "shukkinTime": "17:05", "taikinTime": "21:59", "rosen": "山村・シャープ", "kikaku": "22:30"}], "土曜": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:22", "taikinTime": "18:40", "rosen": "イオン", "kikaku": "19:10"}, "日祝": {"okibo": "06:50", "shukkin": "08:20", "tochaku": "08:50", "shukkinTime": "09:22", "taikinTime": "18:40", "rosen": "イオン", "kikaku": "19:10"}}, "13": {"note": "13", "平日": {"okibo": "09:55", "shukkin": "11:25", "tochaku": "11:55", "shukkinTime": "12:29", "taikinTime": "22:06", "rosen": "イオン", "kikaku": "22:40"}, "土曜": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:22", "taikinTime": "22:05", "rosen": "イオン", "kikaku": "22:35"}, "日祝": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:22", "taikinTime": "22:05", "rosen": "", "kikaku": "22:35"}}, "14": {"note": "14", "平日": {"okibo": "14:25", "shukkin": "15:55", "tochaku": "16:25", "shukkinTime": "16:58", "taikinTime": "+00:18", "rosen": "シャープ", "kikaku": "+00:50"}, "土曜": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:02", "taikinTime": "23:04", "rosen": "シャープ", "kikaku": "23:35"}, "日祝": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:02", "taikinTime": "23:04", "rosen": "", "kikaku": "23:35"}}, "15": {"note": "15"}, "16": {"note": "16"}, "17": {"note": "17", "平日": {"okibo": "04:25", "shukkin": "05:55", "tochaku": "06:25", "shukkinTime": "06:57", "taikinTime": "18:38", "rosen": "天理", "kikaku": "19:10"}, "土曜": {"okibo": "04:15", "shukkin": "05:45", "tochaku": "06:15", "shukkinTime": "06:48", "taikinTime": "18:07", "rosen": "天理", "kikaku": "18:40"}, "日祝": {"okibo": "04:15", "shukkin": "05:45", "tochaku": "06:15", "shukkinTime": "06:48", "taikinTime": "18:07", "rosen": "", "kikaku": "18:40"}}, "18": {"note": "18", "平日": {"okibo": "03:45", "shukkin": "05:15", "tochaku": "05:45", "shukkinTime": "06:19", "taikinTime": "19:28", "rosen": "阪奈", "kikaku": "20:00"}, "土曜": {"okibo": "05:25", "shukkin": "06:55", "tochaku": "07:25", "shukkinTime": "08:00", "taikinTime": "19:29", "rosen": "阪奈", "kikaku": "20:00"}, "日祝": {"okibo": "05:25", "shukkin": "06:55", "tochaku": "07:25", "shukkinTime": "08:00", "taikinTime": "19:29", "rosen": "", "kikaku": "20:00"}}, "19": {"note": "19", "平日": {"okibo": "04:25", "shukkin": "05:55", "tochaku": "06:25", "shukkinTime": "06:59", "taikinTime": "19:05", "rosen": "シャープ", "kikaku": "19:35"}, "土曜": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:13", "taikinTime": "14:19", "rosen": "シャープ", "kikaku": "14:50"}, "日祝": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:13", "taikinTime": "14:19", "rosen": "", "kikaku": "14:50"}}, "20": {"note": "20", "平日": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:14", "taikinTime": "14:14", "rosen": "西大寺", "kikaku": "14:45"}, "土曜": {"okibo": "02:25", "shukkin": "03:55", "tochaku": "04:25", "shukkinTime": "04:59", "taikinTime": "11:49", "rosen": "シャープ", "kikaku": "12:20"}, "日祝": {"okibo": "02:25", "shukkin": "03:55", "tochaku": "04:25", "shukkinTime": "04:59", "taikinTime": "11:49", "rosen": "シャープ", "kikaku": "12:20"}}, "21": {"note": "21"}, "22": {"note": "22", "平日": [{"okibo": "02:50", "shukkin": "04:20", "tochaku": "04:50", "shukkinTime": "05:21", "taikinTime": "08:10", "rosen": "シャープ", "kikaku": "08:45"}, {"okibo": "11:00", "shukkin": "12:30", "tochaku": "13:00", "shukkinTime": "13:30", "taikinTime": "19:51", "rosen": "シャープ", "kikaku": "20:25"}], "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "23": {"note": "23", "平日": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:41", "taikinTime": "19:15", "rosen": "阪奈", "kikaku": "19:45"}, "土曜": {"okibo": "06:30", "shukkin": "08:00", "tochaku": "08:30", "shukkinTime": "09:00", "taikinTime": "19:15", "rosen": "阪奈", "kikaku": "19:45"}, "日祝": {"okibo": "06:30", "shukkin": "08:00", "tochaku": "08:30", "shukkinTime": "09:00", "taikinTime": "19:15", "rosen": "", "kikaku": "19:45"}}, "24": {"note": "24", "平日": {"okibo": "04:10", "shukkin": "05:40", "tochaku": "06:10", "shukkinTime": "06:40", "taikinTime": "16:06", "rosen": "天理", "kikaku": "16:40"}, "土曜": {"okibo": "05:20", "shukkin": "06:50", "tochaku": "07:20", "shukkinTime": "07:52", "taikinTime": "16:55", "rosen": "イオン", "kikaku": "17:25"}, "日祝": {"okibo": "05:20", "shukkin": "06:50", "tochaku": "07:20", "shukkinTime": "07:52", "taikinTime": "16:55", "rosen": "イオン", "kikaku": "17:25"}}, "25": {"note": "25\n手入", "平日": {"okibo": "03:05", "shukkin": "04:35", "tochaku": "05:05", "shukkinTime": "05:38", "taikinTime": "14:50", "rosen": "天理", "kikaku": "15:20"}, "土曜": {"okibo": "03:25", "shukkin": "04:55", "tochaku": "05:25", "shukkinTime": "05:59", "taikinTime": "14:40", "rosen": "シャープ", "kikaku": "15:10"}, "日祝": {"okibo": "03:25", "shukkin": "04:55", "tochaku": "05:25", "shukkinTime": "05:59", "taikinTime": "14:40", "rosen": "シャープ", "kikaku": "15:10"}}, "26": {"note": "26"}, "27": {"note": "27", "平日": [{"okibo": "04:55", "shukkin": "06:25", "tochaku": "06:55", "shukkinTime": "07:25", "taikinTime": "10:09", "rosen": "シャープ・天理", "kikaku": "10:40"}, {"okibo": "14:00", "shukkin": "15:30", "tochaku": "16:00", "shukkinTime": "16:30", "taikinTime": "21:41", "rosen": "シャープ・天理", "kikaku": "22:15"}], "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "28": {"note": "28", "平日": {"okibo": "10:55", "shukkin": "12:25", "tochaku": "12:55", "shukkinTime": "13:28", "taikinTime": "22:07", "rosen": "西大寺", "kikaku": "22:40"}, "土曜": {"okibo": "10:45", "shukkin": "12:15", "tochaku": "12:45", "shukkinTime": "13:18", "taikinTime": "20:43", "rosen": "西大寺", "kikaku": "21:15"}, "日祝": {"okibo": "10:45", "shukkin": "12:15", "tochaku": "12:45", "shukkinTime": "13:18", "taikinTime": "20:43", "rosen": "", "kikaku": "21:15"}}, "29": {"note": "29", "平日": {"okibo": "15:00", "shukkin": "16:30", "tochaku": "17:00", "shukkinTime": "17:30", "taikinTime": "+00:41", "rosen": "シャープ", "kikaku": "+01:15"}, "土曜": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:20", "taikinTime": "21:03", "rosen": "シャープ", "kikaku": "21:35"}, "日祝": {"okibo": "09:50", "shukkin": "11:20", "tochaku": "11:50", "shukkinTime": "12:20", "taikinTime": "21:03", "rosen": "", "kikaku": "21:35"}}, "30": {"note": "30", "平日": {"okibo": "13:35", "shukkin": "15:05", "tochaku": "15:35", "shukkinTime": "16:08", "taikinTime": "+00:20", "rosen": "天理", "kikaku": "+00:50"}, "土曜": {"okibo": "13:55", "shukkin": "15:25", "tochaku": "15:55", "shukkinTime": "16:29", "taikinTime": "+00:19", "rosen": "シャープ", "kikaku": "+00:50"}, "日祝": {"okibo": "13:55", "shukkin": "15:25", "tochaku": "15:55", "shukkinTime": "16:29", "taikinTime": "+00:19", "rosen": "シャープ", "kikaku": "+00:50"}}, "31": {"note": "31"}, "32": {"note": "32"}, "33": {"note": "33", "平日": [{"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "10:44", "rosen": "天理・西大寺", "kikaku": "11:15"}, {"okibo": "13:50", "shukkin": "15:20", "tochaku": "15:50", "shukkinTime": "16:20", "taikinTime": "21:28", "rosen": "天理・西大寺", "kikaku": "22:00"}], "土曜": {"okibo": "07:25", "shukkin": "08:55", "tochaku": "09:25", "shukkinTime": "09:59", "taikinTime": "20:41", "rosen": "天理", "kikaku": "21:15"}, "日祝": {"okibo": "07:25", "shukkin": "08:55", "tochaku": "09:25", "shukkinTime": "09:59", "taikinTime": "20:41", "rosen": "天理", "kikaku": "21:15"}}, "34": {"note": "34", "平日": {"okibo": "14:05", "shukkin": "15:35", "tochaku": "16:05", "shukkinTime": "16:35", "taikinTime": "22:41", "rosen": "シャープ", "kikaku": "23:15"}, "土曜": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:03", "taikinTime": "23:03", "rosen": "イオン", "kikaku": "23:35"}, "日祝": {"okibo": "11:30", "shukkin": "13:00", "tochaku": "13:30", "shukkinTime": "14:03", "taikinTime": "23:03", "rosen": "イオン", "kikaku": "23:35"}}, "35": {"note": "35", "平日": {"okibo": "13:05", "shukkin": "14:35", "tochaku": "15:05", "shukkinTime": "15:37", "taikinTime": "22:43", "rosen": "天理", "kikaku": "23:15"}, "土曜": {"okibo": "13:20", "shukkin": "14:50", "tochaku": "15:20", "shukkinTime": "15:54", "taikinTime": "22:08", "rosen": "天理", "kikaku": "22:40"}, "日祝": {"okibo": "13:20", "shukkin": "14:50", "tochaku": "15:20", "shukkinTime": "15:54", "taikinTime": "22:08", "rosen": "", "kikaku": "22:40"}}, "36": {"note": "36", "平日": {"okibo": "08:10", "shukkin": "09:40", "tochaku": "10:10", "shukkinTime": "10:42", "taikinTime": "19:20", "rosen": "シャープ", "kikaku": "19:50"}, "土曜": {"okibo": "09:30", "shukkin": "11:00", "tochaku": "11:30", "shukkinTime": "12:02", "taikinTime": "20:23", "rosen": "シャープ", "kikaku": "20:55"}, "日祝": {"okibo": "09:30", "shukkin": "11:00", "tochaku": "11:30", "shukkinTime": "12:02", "taikinTime": "20:23", "rosen": "", "kikaku": "20:55"}}, "37": {"note": "37"}, "38": {"note": "38", "平日": {"okibo": "04:30", "shukkin": "06:00", "tochaku": "06:30", "shukkinTime": "07:00", "taikinTime": "19:26", "rosen": "阪奈", "kikaku": "20:00"}, "土曜": {"okibo": "05:55", "shukkin": "07:25", "tochaku": "07:55", "shukkinTime": "08:28", "taikinTime": "18:59", "rosen": "阪奈", "kikaku": "19:30"}, "日祝": {"okibo": "05:55", "shukkin": "07:25", "tochaku": "07:55", "shukkinTime": "08:28", "taikinTime": "18:59", "rosen": "", "kikaku": "19:30"}}, "39": {"note": "39", "平日": [{"okibo": "04:35", "shukkin": "06:05", "tochaku": "06:35", "shukkinTime": "07:09", "taikinTime": "10:22", "rosen": "シャープ・天理", "kikaku": "10:55"}, {"okibo": "13:40", "shukkin": "15:10", "tochaku": "15:40", "shukkinTime": "16:10", "taikinTime": "22:08", "rosen": "シャープ・天理", "kikaku": "22:40"}], "土曜": {"okibo": "07:05", "shukkin": "08:35", "tochaku": "09:05", "shukkinTime": "09:37", "taikinTime": "20:24", "rosen": "イオン", "kikaku": "20:55"}, "日祝": {"okibo": "07:05", "shukkin": "08:35", "tochaku": "09:05", "shukkinTime": "09:37", "taikinTime": "20:24", "rosen": "イオン", "kikaku": "20:55"}}, "40": {"note": "40", "平日": {"okibo": "10:35", "shukkin": "12:05", "tochaku": "12:35", "shukkinTime": "13:09", "taikinTime": "22:58", "rosen": "イオン", "kikaku": "23:30"}, "土曜": {"okibo": "11:20", "shukkin": "12:50", "tochaku": "13:20", "shukkinTime": "13:53", "taikinTime": "21:24", "rosen": "山村・天理", "kikaku": "21:55"}, "日祝": {"okibo": "11:20", "shukkin": "12:50", "tochaku": "13:20", "shukkinTime": "13:53", "taikinTime": "21:24", "rosen": "山村・天理", "kikaku": "21:55"}}, "41": {"note": "41", "平日": {"okibo": "11:10", "shukkin": "12:40", "tochaku": "13:10", "shukkinTime": "13:42", "taikinTime": "22:29", "rosen": "シャープ", "kikaku": "23:00"}, "土曜": {"okibo": "10:30", "shukkin": "12:00", "tochaku": "12:30", "shukkinTime": "13:02", "taikinTime": "22:43", "rosen": "シャープ", "kikaku": "23:15"}, "日祝": {"okibo": "10:30", "shukkin": "12:00", "tochaku": "12:30", "shukkinTime": "13:02", "taikinTime": "22:43", "rosen": "", "kikaku": "23:15"}}, "42": {"note": "42"}, "43": {"note": "43", "平日": {"okibo": "13:00", "shukkin": "14:30", "tochaku": "15:00", "shukkinTime": "15:30", "taikinTime": "22:18", "rosen": "シャープ", "kikaku": "22:50"}, "土曜": {"kyukyu": true}, "日祝": {"kyukyu": true}}, "44": {"note": "44", "平日": {"okibo": "12:40", "shukkin": "14:10", "tochaku": "14:40", "shukkinTime": "15:12", "taikinTime": "+00:17", "rosen": "イオン", "kikaku": "+00:50"}, "土曜": {"okibo": "13:00", "shukkin": "14:30", "tochaku": "15:00", "shukkinTime": "15:32", "taikinTime": "+00:13", "rosen": "イオン", "kikaku": "+00:45"}, "日祝": {"okibo": "13:00", "shukkin": "14:30", "tochaku": "15:00", "shukkinTime": "15:32", "taikinTime": "+00:13", "rosen": "", "kikaku": "+00:45"}}, "45": {"note": "45", "平日": {"okibo": "14:50", "shukkin": "16:20", "tochaku": "16:50", "shukkinTime": "17:24", "taikinTime": "+00:23", "rosen": "天理", "kikaku": "+00:55"}, "土曜": {"okibo": "14:50", "shukkin": "16:20", "tochaku": "16:50", "shukkinTime": "17:20", "taikinTime": "23:34", "rosen": "天理", "kikaku": "+00:05"}, "日祝": {"okibo": "14:50", "shukkin": "16:20", "tochaku": "16:50", "shukkinTime": "17:20", "taikinTime": "23:34", "rosen": "", "kikaku": "+00:05"}}, "46": {"note": "46", "平日": {"okibo": "13:10", "shukkin": "14:40", "tochaku": "15:10", "shukkinTime": "15:44", "taikinTime": "23:52", "rosen": "西大寺", "kikaku": "+00:25"}, "土曜": {"okibo": "13:10", "shukkin": "14:40", "tochaku": "15:10", "shukkinTime": "15:44", "taikinTime": "22:32", "rosen": "西大寺", "kikaku": "23:05"}, "日祝": {"okibo": "13:10", "shukkin": "14:40", "tochaku": "15:10", "shukkinTime": "15:44", "taikinTime": "22:32", "rosen": "", "kikaku": "23:05"}}, "47": {"note": "47"}, "48": {"note": "48"}, "49": {"note": "49", "平日": [{"okibo": "03:35", "shukkin": "05:05", "tochaku": "05:35", "shukkinTime": "06:09", "taikinTime": "09:01", "rosen": "シャープ", "kikaku": "09:35"}, {"okibo": "14:00", "shukkin": "15:30", "tochaku": "16:00", "shukkinTime": "16:32", "taikinTime": "19:54", "rosen": "シャープ", "kikaku": "20:25"}], "土曜": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:10", "taikinTime": "13:35", "rosen": "", "kikaku": "14:05"}, "日祝": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:10", "taikinTime": "13:35", "rosen": "", "kikaku": "14:05"}}, "50": {"note": "50", "平日": {"okibo": "05:05", "shukkin": "06:35", "tochaku": "07:05", "shukkinTime": "07:36", "taikinTime": "18:45", "rosen": "阪奈", "kikaku": "19:15"}, "土曜": {"okibo": "06:00", "shukkin": "07:30", "tochaku": "08:00", "shukkinTime": "08:30", "taikinTime": "18:45", "rosen": "阪奈", "kikaku": "19:15"}, "日祝": {"okibo": "06:00", "shukkin": "07:30", "tochaku": "08:00", "shukkinTime": "08:30", "taikinTime": "18:45", "rosen": "", "kikaku": "19:15"}}, "51": {"note": "51", "平日": {"okibo": "03:55", "shukkin": "05:25", "tochaku": "05:55", "shukkinTime": "06:26", "taikinTime": "19:42", "rosen": "天理", "kikaku": "20:15"}, "土曜": {"okibo": "03:50", "shukkin": "05:20", "tochaku": "05:50", "shukkinTime": "06:21", "taikinTime": "18:25", "rosen": "天理", "kikaku": "18:55"}, "日祝": {"okibo": "03:50", "shukkin": "05:20", "tochaku": "05:50", "shukkinTime": "06:21", "taikinTime": "18:25", "rosen": "", "kikaku": "18:55"}}, "52": {"note": "52", "平日": {"okibo": "03:05", "shukkin": "04:35", "tochaku": "05:05", "shukkinTime": "05:38", "taikinTime": "16:20", "rosen": "山村", "kikaku": "16:50"}, "土曜": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:11", "taikinTime": "13:29", "rosen": "山村", "kikaku": "14:00"}, "日祝": {"okibo": "02:40", "shukkin": "04:10", "tochaku": "04:40", "shukkinTime": "05:11", "taikinTime": "13:29", "rosen": "", "kikaku": "14:00"}}, "53": {"note": "53"}, "54": {"note": "54", "平日": [{"okibo": "03:30", "shukkin": "05:00", "tochaku": "05:30", "shukkinTime": "06:01", "taikinTime": "09:27", "rosen": "山村", "kikaku": "10:00"}, {"okibo": "11:20", "shukkin": "12:50", "tochaku": "13:20", "shukkinTime": "13:53", "taikinTime": "19:46", "rosen": "山村", "kikaku": "20:20"}], "土曜": {"okibo": "03:35", "shukkin": "05:05", "tochaku": "05:35", "shukkinTime": "06:08", "taikinTime": "13:51", "rosen": "", "kikaku": "14:25"}, "日祝": {"okibo": "03:35", "shukkin": "05:05", "tochaku": "05:35", "shukkinTime": "06:08", "taikinTime": "13:51", "rosen": "", "kikaku": "14:25"}}, "55": {"note": "55", "平日": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:39", "taikinTime": "18:00", "rosen": "阪奈", "kikaku": "18:30"}, "土曜": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "18:00", "rosen": "阪奈", "kikaku": "18:30"}, "日祝": {"okibo": "04:05", "shukkin": "05:35", "tochaku": "06:05", "shukkinTime": "06:38", "taikinTime": "18:00", "rosen": "", "kikaku": "18:30"}}, "56": {"note": "56", "平日": {"okibo": "04:15", "shukkin": "05:45", "tochaku": "06:15", "shukkinTime": "06:45", "taikinTime": "18:46", "rosen": "西大寺", "kikaku": "19:20"}, "土曜": {"okibo": "05:45", "shukkin": "07:15", "tochaku": "07:45", "shukkinTime": "08:20", "taikinTime": "18:45", "rosen": "西大寺", "kikaku": "19:15"}, "日祝": {"okibo": "05:45", "shukkin": "07:15", "tochaku": "07:45", "shukkinTime": "08:20", "taikinTime": "18:45", "rosen": "", "kikaku": "19:15"}}, "57": {"note": "57"}};
 
 const HOLIDAYS = new Set(["2024-01-01","2024-01-08","2024-02-11","2024-02-12","2024-02-23","2024-03-20","2024-04-29","2024-05-03","2024-05-04","2024-05-05","2024-05-06","2024-07-15","2024-08-11","2024-08-12","2024-09-16","2024-09-22","2024-09-23","2024-10-14","2024-11-03","2024-11-04","2024-11-23","2024-12-23","2025-01-01","2025-01-13","2025-02-11","2025-02-23","2025-02-24","2025-03-20","2025-04-29","2025-05-03","2025-05-04","2025-05-05","2025-05-06","2025-07-21","2025-08-11","2025-09-15","2025-09-22","2025-09-23","2025-10-13","2025-11-03","2025-11-23","2025-11-24","2026-01-01","2026-01-12","2026-02-11","2026-02-23","2026-03-20","2026-04-29","2026-05-03","2026-05-04","2026-05-05","2026-05-06","2026-07-20","2026-08-11","2026-09-21","2026-09-22","2026-09-23","2026-10-12","2026-11-03","2026-11-23","2027-01-01","2027-01-11","2027-02-11","2027-02-23","2027-03-20","2027-04-29","2027-05-03","2027-05-04","2027-05-05","2027-07-19","2027-08-11","2027-09-20","2027-09-23","2027-10-11","2027-11-03","2027-11-23"]);
 
@@ -934,7 +961,7 @@ function buildShiftCard(shifts, isKyukyu, isYobi) {
     const overrideMin = SHUKKIN_OVERRIDES[overrideKey];
     const isOverride = overrideMin !== undefined;
     const workStartMin  = isOverride ? overrideMin : timeToMin(sh.shukkinTime);
-    const workStartColor = isOverride ? '#b8355a' : '#3d9e6e';
+    const workStartColor = isOverride ? '#b8355a' : '#ff5cb8';
     const shukkinOverrideFlag = isOverride ? ' ✎' : '';
     const okiboMin      = workStartMin !== null ? workStartMin - wake   : null;
     const shusshaMin    = workStartMin !== null ? workStartMin - leave  : null;
@@ -948,32 +975,32 @@ function buildShiftCard(shifts, isKyukyu, isYobi) {
       ${s.showOkibo ? `<div class="shift-row">
         <span class="shift-icon">⏰</span>
         <span class="shift-label">① 起床</span>
-        <span class="shift-time" style="color:#4a90b8">${minToTime(okiboMin)}</span>
+        <span class="shift-time" style="color:#1a1a1a">${minToTime(okiboMin)}</span>
       </div>` : ''}
       ${s.showShukkin ? `<div class="shift-row">
         <span class="shift-icon">🚙</span>
         <span class="shift-label">② 出社（家を出る）</span>
-        <span class="shift-time" style="color:#4a90b8">${minToTime(shusshaMin)}</span>
+        <span class="shift-time" style="color:#1a1a1a">${minToTime(shusshaMin)}</span>
       </div>` : ''}
       ${s.showTochaku ? `<div class="shift-row">
         <span class="shift-icon">🏢</span>
         <span class="shift-label">③ 到着（会社）</span>
-        <span class="shift-time" style="color:#4a90b8">${minToTime(tochakuMin)}</span>
+        <span class="shift-time" style="color:#1a1a1a">${minToTime(tochakuMin)}</span>
       </div>` : ''}
       ${s.showShukkinTime ? `<div class="shift-row">
         <span class="shift-icon">▶️</span>
         <span class="shift-label">④ 出勤時間（勤務開始）</span>
-        <button class="shukkin-btn" style="color:${workStartColor}" onclick="openShukkinNumpad('${dateKey}',${shiftIdx},'${sh.shukkinTime}')">${minToTime(workStartMin)}${shukkinOverrideFlag}</button>
+        <button class="shukkin-btn${isOverride ? ' override' : ''}" style="color:${workStartColor}" onclick="openShukkinNumpad('${dateKey}',${shiftIdx},'${sh.shukkinTime}')">${minToTime(workStartMin)}${shukkinOverrideFlag}</button>
       </div>` : ''}
       ${s.showTaikinTime ? `<div class="shift-row">
         <span class="shift-icon">⏹️</span>
         <span class="shift-label">⑤ 退勤時間（勤務終了）</span>
-        <span class="shift-time" style="color:#c07030">${minToTime(taikinTimeMin)}</span>
+        <span class="shift-time" style="color:#2979ff">${minToTime(taikinTimeMin)}</span>
       </div>` : ''}
       ${s.showKikaku ? `<div class="shift-row">
         <span class="shift-icon">🏠</span>
         <span class="shift-label">⑥ 帰宅（家に到着）</span>
-        <span class="shift-time" style="color:#4a90b8">${minToTime(kikakuMin)}</span>
+        <span class="shift-time" style="color:#1a1a1a">${minToTime(kikakuMin)}</span>
       </div>` : ''}
       ${sh.rosen ? `<div class="rosen-row"><span class="rosen-icon">🚌</span><span class="rosen-label">路線:</span><span class="rosen-val">${sh.rosen}</span></div>` : ''}
     </div>`;
@@ -1096,148 +1123,148 @@ function renderIchiran() {
   const ICHIRAN = [
     { dia:1,  type:'',       hei:{ okibo:'4:20', shukkin:'5:50', tochaku:'6:10', start:'6:54',  taikin:'16:30', rosen:'イオン・都',      kitan:'17:00' },
                              doy:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:44',  taikin:'14:20', rosen:'イオン',          kitan:'14:50' },
-                             nch:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:44',  taikin:'14:20', rosen:'',               kitan:'14:50' } },
+                             nch:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:44',  taikin:'14:20', rosen:'イオン',               kitan:'14:50' } },
     { dia:2,  type:'中間',   hei:{ okibo:'3:55', shukkin:'5:25', tochaku:'5:55', start:'6:25',  taikin:'9:07',  rosen:'シャープ',        kitan:'9:40',
-                                   okibo2:'13:35', shukkin2:'15:05', tochaku2:'15:35', start2:'16:05', taikin2:'21:01', kitan2:'21:35' },
+                                   okibo2:'13:35', shukkin2:'15:05', tochaku2:'15:35', start2:'16:05', taikin2:'21:01', kitan2:'21:35', rosen2:'シャープ' },
                              doy:{ okibo:'6:20', shukkin:'7:50', tochaku:'8:20', start:'8:50',  taikin:'19:43', rosen:'西大寺',          kitan:'20:15' },
-                             nch:{ okibo:'6:20', shukkin:'7:50', tochaku:'8:20', start:'8:50',  taikin:'19:43', rosen:'',               kitan:'20:15' } },
+                             nch:{ okibo:'6:20', shukkin:'7:50', tochaku:'8:20', start:'8:50',  taikin:'19:43', rosen:'西大寺',          kitan:'20:15' } },
     { dia:3,  type:'',       hei:{ okibo:'4:15', shukkin:'5:45', tochaku:'6:15', start:'6:48',  taikin:'18:59', rosen:'都・ｲｵﾝ・ｼｬｰﾌﾟ',  kitan:'19:30' },
                              doy:{ okibo:'6:15', shukkin:'7:45', tochaku:'8:15', start:'8:49',  taikin:'16:08', rosen:'イオン',          kitan:'16:40' },
-                             nch:{ okibo:'6:15', shukkin:'7:45', tochaku:'8:15', start:'8:49',  taikin:'16:08', rosen:'',               kitan:'16:40' } },
+                             nch:{ okibo:'6:15', shukkin:'7:45', tochaku:'8:15', start:'8:49',  taikin:'16:08', rosen:'イオン',               kitan:'16:40' } },
     { dia:4,  type:'',       hei:{ okibo:'3:45', shukkin:'5:15', tochaku:'5:45', start:'6:19',  taikin:'14:09', rosen:'シャープ',        kitan:'14:40' },
                              doy:{ okibo:'2:35', shukkin:'4:05', tochaku:'4:35', start:'5:07',  taikin:'10:53', rosen:'天理',            kitan:'11:25' },
-                             nch:{ okibo:'2:35', shukkin:'4:05', tochaku:'4:35', start:'5:07',  taikin:'10:53', rosen:'',               kitan:'11:25' } },
+                             nch:{ okibo:'2:35', shukkin:'4:05', tochaku:'4:35', start:'5:07',  taikin:'10:53', rosen:'天理',               kitan:'11:25' } },
     { dia:5,  type:'公休',   hei:null, doy:null, nch:null },
     { dia:6,  type:'予備',   hei:null, doy:null, nch:null },
     { dia:7,  type:'',       hei:{ okibo:'4:30', shukkin:'6:00', tochaku:'6:30', start:'7:00',  taikin:'19:37', rosen:'シャープ',        kitan:'20:10' },
-                             doy:{ okibo:'6:50', shukkin:'8:20', tochaku:'8:50', start:'9:20',  taikin:'19:43', rosen:'',               kitan:'20:15' },
-                             nch:{ okibo:'6:50', shukkin:'8:20', tochaku:'8:50', start:'9:20',  taikin:'19:43', rosen:'',               kitan:'20:15' } },
+                             doy:{ okibo:'6:50', shukkin:'8:20', tochaku:'8:50', start:'9:20',  taikin:'19:43', rosen:'シャープ',               kitan:'20:15' },
+                             nch:{ okibo:'6:50', shukkin:'8:20', tochaku:'8:50', start:'9:20',  taikin:'19:43', rosen:'シャープ',               kitan:'20:15' } },
     { dia:8,  type:'',       hei:{ okibo:'4:05', shukkin:'5:35', tochaku:'6:05', start:'6:38',  taikin:'17:52', rosen:'西大寺',          kitan:'18:25' },
-                             doy:{ okibo:'5:10', shukkin:'6:40', tochaku:'7:10', start:'7:42',  taikin:'16:50', rosen:'',               kitan:'17:20' },
-                             nch:{ okibo:'5:10', shukkin:'6:40', tochaku:'7:10', start:'7:42',  taikin:'16:50', rosen:'',               kitan:'17:20' } },
+                             doy:{ okibo:'5:10', shukkin:'6:40', tochaku:'7:10', start:'7:42',  taikin:'16:50', rosen:'西大寺',               kitan:'17:20' },
+                             nch:{ okibo:'5:10', shukkin:'6:40', tochaku:'7:10', start:'7:42',  taikin:'16:50', rosen:'西大寺',               kitan:'17:20' } },
     { dia:9,  type:'手入',   hei:{ okibo:'2:45', shukkin:'4:15', tochaku:'4:45', start:'5:19',  taikin:'11:47', rosen:'天理',            kitan:'12:20' },
                              doy:{ okibo:'2:45', shukkin:'4:15', tochaku:'4:45', start:'5:17',  taikin:'11:22', rosen:'西大寺',          kitan:'11:55' },
-                             nch:{ okibo:'2:45', shukkin:'4:15', tochaku:'4:45', start:'5:17',  taikin:'11:22', rosen:'',               kitan:'11:55' } },
+                             nch:{ okibo:'2:45', shukkin:'4:15', tochaku:'4:45', start:'5:17',  taikin:'11:22', rosen:'西大寺',               kitan:'11:55' } },
     { dia:10, type:'公休',   hei:null, doy:null, nch:null },
     { dia:11, type:'',       hei:{ okibo:'2:45', shukkin:'4:15', tochaku:'4:45', start:'5:16',  taikin:'14:34', rosen:'西大寺',          kitan:'15:05' },
                              doy:{ type:'公休' }, nch:{ type:'公休' } },
     { dia:12, type:'中間',   hei:{ okibo:'4:35', shukkin:'6:05', tochaku:'6:35', start:'7:05',  taikin:'10:56', rosen:'山村・シャープ',   kitan:'11:30',
-                                   okibo2:'14:35', shukkin2:'16:05', tochaku2:'16:35', start2:'17:05', taikin2:'21:59', kitan2:'22:30' },
+                                   okibo2:'14:35', shukkin2:'16:05', tochaku2:'16:35', start2:'17:05', taikin2:'21:59', kitan2:'22:30', rosen2:'山村・シャープ' },
                              doy:{ okibo:'6:50', shukkin:'8:20', tochaku:'8:50', start:'9:22',  taikin:'18:40', rosen:'イオン',          kitan:'19:10' },
-                             nch:{ okibo:'6:50', shukkin:'8:20', tochaku:'8:50', start:'9:22',  taikin:'18:40', rosen:'',               kitan:'19:10' } },
+                             nch:{ okibo:'6:50', shukkin:'8:20', tochaku:'8:50', start:'9:22',  taikin:'18:40', rosen:'イオン',          kitan:'19:10' } },
     { dia:13, type:'',       hei:{ okibo:'9:55', shukkin:'11:25',tochaku:'11:55',start:'12:29', taikin:'22:06', rosen:'イオン',           kitan:'22:40' },
-                             doy:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:22', taikin:'22:05', rosen:'',               kitan:'22:35' },
-                             nch:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:22', taikin:'22:05', rosen:'',               kitan:'22:35' } },
+                             doy:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:22', taikin:'22:05', rosen:'イオン',               kitan:'22:35' },
+                             nch:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:22', taikin:'22:05', rosen:'イオン',               kitan:'22:35' } },
     { dia:14, type:'',       hei:{ okibo:'14:25',shukkin:'15:55',tochaku:'16:25',start:'16:58', taikin:'24:18', rosen:'シャープ',         kitan:'24:50' },
-                             doy:{ okibo:'11:30',shukkin:'13:00',tochaku:'13:30',start:'14:02', taikin:'23:04', rosen:'',               kitan:'23:35' },
-                             nch:{ okibo:'11:30',shukkin:'13:00',tochaku:'13:30',start:'14:02', taikin:'23:04', rosen:'',               kitan:'23:35' } },
+                             doy:{ okibo:'11:30',shukkin:'13:00',tochaku:'13:30',start:'14:02', taikin:'23:04', rosen:'シャープ',               kitan:'23:35' },
+                             nch:{ okibo:'11:30',shukkin:'13:00',tochaku:'13:30',start:'14:02', taikin:'23:04', rosen:'シャープ',               kitan:'23:35' } },
     { dia:15, type:'公休',   hei:null, doy:null, nch:null },
     { dia:16, type:'公休',   hei:null, doy:null, nch:null },
     { dia:17, type:'',       hei:{ okibo:'4:25', shukkin:'5:55', tochaku:'6:25', start:'6:57',  taikin:'18:38', rosen:'天理',            kitan:'19:10' },
-                             doy:{ okibo:'4:15', shukkin:'5:45', tochaku:'6:15', start:'6:48',  taikin:'18:07', rosen:'',               kitan:'18:40' },
-                             nch:{ okibo:'4:15', shukkin:'5:45', tochaku:'6:15', start:'6:48',  taikin:'18:07', rosen:'',               kitan:'18:40' } },
+                             doy:{ okibo:'4:15', shukkin:'5:45', tochaku:'6:15', start:'6:48',  taikin:'18:07', rosen:'天理',               kitan:'18:40' },
+                             nch:{ okibo:'4:15', shukkin:'5:45', tochaku:'6:15', start:'6:48',  taikin:'18:07', rosen:'天理',               kitan:'18:40' } },
     { dia:18, type:'',       hei:{ okibo:'3:45', shukkin:'5:15', tochaku:'5:45', start:'6:19',  taikin:'19:28', rosen:'阪奈',            kitan:'20:00' },
-                             doy:{ okibo:'5:25', shukkin:'6:55', tochaku:'7:25', start:'8:00',  taikin:'19:29', rosen:'',               kitan:'20:00' },
-                             nch:{ okibo:'5:25', shukkin:'6:55', tochaku:'7:25', start:'8:00',  taikin:'19:29', rosen:'',               kitan:'20:00' } },
+                             doy:{ okibo:'5:25', shukkin:'6:55', tochaku:'7:25', start:'8:00',  taikin:'19:29', rosen:'阪奈',               kitan:'20:00' },
+                             nch:{ okibo:'5:25', shukkin:'6:55', tochaku:'7:25', start:'8:00',  taikin:'19:29', rosen:'阪奈',               kitan:'20:00' } },
     { dia:19, type:'',       hei:{ okibo:'4:25', shukkin:'5:55', tochaku:'6:25', start:'6:59',  taikin:'19:05', rosen:'シャープ',         kitan:'19:35' },
-                             doy:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:13',  taikin:'14:19', rosen:'',               kitan:'14:50' },
-                             nch:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:13',  taikin:'14:19', rosen:'',               kitan:'14:50' } },
+                             doy:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:13',  taikin:'14:19', rosen:'シャープ',               kitan:'14:50' },
+                             nch:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:13',  taikin:'14:19', rosen:'シャープ',               kitan:'14:50' } },
     { dia:20, type:'',       hei:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:14',  taikin:'14:14', rosen:'西大寺',           kitan:'14:45' },
                              doy:{ okibo:'2:25', shukkin:'3:55', tochaku:'4:25', start:'4:59',  taikin:'11:49', rosen:'シャープ',         kitan:'12:20' },
-                             nch:{ okibo:'2:25', shukkin:'3:55', tochaku:'4:25', start:'4:59',  taikin:'11:49', rosen:'',               kitan:'12:20' } },
+                             nch:{ okibo:'2:25', shukkin:'3:55', tochaku:'4:25', start:'4:59',  taikin:'11:49', rosen:'シャープ',               kitan:'12:20' } },
     { dia:21, type:'公休',   hei:null, doy:null, nch:null },
     { dia:22, type:'中間',   hei:{ okibo:'2:50', shukkin:'4:20', tochaku:'4:50', start:'5:21',  taikin:'8:10',  rosen:'シャープ',         kitan:'8:40',
-                                   okibo2:'11:00', shukkin2:'12:30', tochaku2:'13:00', start2:'13:30', taikin2:'19:51', kitan2:'20:25' },
+                                   okibo2:'11:00', shukkin2:'12:30', tochaku2:'13:00', start2:'13:30', taikin2:'19:51', kitan2:'20:25', rosen2:'シャープ' },
                              doy:{ type:'公休' }, nch:{ type:'公休' } },
     { dia:23, type:'',       hei:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:41',  taikin:'19:15', rosen:'阪奈',            kitan:'19:45' },
-                             doy:{ okibo:'6:30', shukkin:'8:00', tochaku:'8:30', start:'9:00',  taikin:'19:15', rosen:'',               kitan:'19:45' },
-                             nch:{ okibo:'6:30', shukkin:'8:00', tochaku:'8:30', start:'9:00',  taikin:'19:15', rosen:'',               kitan:'19:45' } },
+                             doy:{ okibo:'6:30', shukkin:'8:00', tochaku:'8:30', start:'9:00',  taikin:'19:15', rosen:'阪奈',               kitan:'19:45' },
+                             nch:{ okibo:'6:30', shukkin:'8:00', tochaku:'8:30', start:'9:00',  taikin:'19:15', rosen:'阪奈',               kitan:'19:45' } },
     { dia:24, type:'',       hei:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:40',  taikin:'16:06', rosen:'天理',            kitan:'16:40' },
                              doy:{ okibo:'5:20', shukkin:'6:50', tochaku:'7:20', start:'7:52',  taikin:'16:55', rosen:'イオン',           kitan:'17:25' },
-                             nch:{ okibo:'5:20', shukkin:'6:50', tochaku:'7:20', start:'7:52',  taikin:'16:55', rosen:'',               kitan:'17:25' } },
+                             nch:{ okibo:'5:20', shukkin:'6:50', tochaku:'7:20', start:'7:52',  taikin:'16:55', rosen:'イオン',               kitan:'17:25' } },
     { dia:25, type:'手入',   hei:{ okibo:'3:05', shukkin:'4:35', tochaku:'5:05', start:'5:38',  taikin:'14:50', rosen:'天理',            kitan:'15:25' },
                              doy:{ okibo:'3:25', shukkin:'4:55', tochaku:'5:25', start:'5:59',  taikin:'14:40', rosen:'シャープ',         kitan:'15:10' },
-                             nch:{ okibo:'3:25', shukkin:'4:55', tochaku:'5:25', start:'5:59',  taikin:'14:40', rosen:'',               kitan:'15:10' } },
+                             nch:{ okibo:'3:25', shukkin:'4:55', tochaku:'5:25', start:'5:59',  taikin:'14:40', rosen:'シャープ',               kitan:'15:10' } },
     { dia:26, type:'公休',   hei:null, doy:null, nch:null },
     { dia:27, type:'中間',   hei:{ okibo:'4:55', shukkin:'6:25', tochaku:'6:55', start:'7:25',  taikin:'10:09', rosen:'シャープ・天理',   kitan:'10:40',
-                                   okibo2:'14:00', shukkin2:'15:30', tochaku2:'16:00', start2:'16:30', taikin2:'21:41', kitan2:'22:15' },
+                                   okibo2:'14:00', shukkin2:'15:30', tochaku2:'16:00', start2:'16:30', taikin2:'21:41', kitan2:'22:15', rosen2:'シャープ・天理' },
                              doy:{ type:'公休' }, nch:{ type:'公休' } },
     { dia:28, type:'',       hei:{ okibo:'10:55',shukkin:'12:25',tochaku:'12:55',start:'13:28', taikin:'22:07', rosen:'西大寺',           kitan:'22:40' },
-                             doy:{ okibo:'10:45',shukkin:'12:15',tochaku:'12:45',start:'13:18', taikin:'20:43', rosen:'',               kitan:'21:15' },
-                             nch:{ okibo:'10:45',shukkin:'12:15',tochaku:'12:45',start:'13:18', taikin:'20:43', rosen:'',               kitan:'21:15' } },
+                             doy:{ okibo:'10:45',shukkin:'12:15',tochaku:'12:45',start:'13:18', taikin:'20:43', rosen:'西大寺',               kitan:'21:15' },
+                             nch:{ okibo:'10:45',shukkin:'12:15',tochaku:'12:45',start:'13:18', taikin:'20:43', rosen:'西大寺',               kitan:'21:15' } },
     { dia:29, type:'',       hei:{ okibo:'15:00',shukkin:'16:30',tochaku:'17:00',start:'17:30', taikin:'24:41', rosen:'シャープ',         kitan:'25:15' },
-                             doy:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:20', taikin:'21:03', rosen:'',               kitan:'21:35' },
-                             nch:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:20', taikin:'21:03', rosen:'',               kitan:'21:35' } },
+                             doy:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:20', taikin:'21:03', rosen:'シャープ',               kitan:'21:35' },
+                             nch:{ okibo:'9:50', shukkin:'11:20',tochaku:'11:50',start:'12:20', taikin:'21:03', rosen:'シャープ',               kitan:'21:35' } },
     { dia:30, type:'',       hei:{ okibo:'13:35',shukkin:'15:05',tochaku:'15:35',start:'16:08', taikin:'24:20', rosen:'天理',            kitan:'24:55' },
                              doy:{ okibo:'13:55',shukkin:'15:25',tochaku:'15:55',start:'16:29', taikin:'24:19', rosen:'シャープ',         kitan:'24:50' },
-                             nch:{ okibo:'13:55',shukkin:'15:25',tochaku:'15:55',start:'16:29', taikin:'24:19', rosen:'',               kitan:'24:50' } },
+                             nch:{ okibo:'13:55',shukkin:'15:25',tochaku:'15:55',start:'16:29', taikin:'24:19', rosen:'シャープ',               kitan:'24:50' } },
     { dia:31, type:'公休',   hei:null, doy:null, nch:null },
     { dia:32, type:'公休',   hei:null, doy:null, nch:null },
     { dia:33, type:'中間',   hei:{ okibo:'4:05', shukkin:'5:35', tochaku:'6:05', start:'6:38',  taikin:'10:44', rosen:'天理・西大寺',     kitan:'11:15',
-                                   okibo2:'13:50', shukkin2:'15:20', tochaku2:'15:50', start2:'16:20', taikin2:'21:28', kitan2:'22:00' },
+                                   okibo2:'13:50', shukkin2:'15:20', tochaku2:'15:50', start2:'16:20', taikin2:'21:28', kitan2:'22:00', rosen2:'天理・西大寺' },
                              doy:{ okibo:'7:25', shukkin:'8:55', tochaku:'9:25', start:'9:59',  taikin:'20:41', rosen:'天理',            kitan:'21:15' },
-                             nch:{ okibo:'7:25', shukkin:'8:55', tochaku:'9:25', start:'9:59',  taikin:'20:41', rosen:'',               kitan:'21:15' } },
+                             nch:{ okibo:'7:25', shukkin:'8:55', tochaku:'9:25', start:'9:59',  taikin:'20:41', rosen:'天理',            kitan:'21:15' } },
     { dia:34, type:'',       hei:{ okibo:'14:05',shukkin:'15:35',tochaku:'16:05',start:'16:35', taikin:'22:41', rosen:'シャープ',         kitan:'23:15' },
                              doy:{ okibo:'11:30',shukkin:'13:00',tochaku:'13:30',start:'14:03', taikin:'23:03', rosen:'イオン',           kitan:'23:35' },
-                             nch:{ okibo:'11:30',shukkin:'13:00',tochaku:'13:30',start:'14:03', taikin:'23:03', rosen:'',               kitan:'23:35' } },
+                             nch:{ okibo:'11:30',shukkin:'13:00',tochaku:'13:30',start:'14:03', taikin:'23:03', rosen:'イオン',               kitan:'23:35' } },
     { dia:35, type:'',       hei:{ okibo:'13:05',shukkin:'14:35',tochaku:'15:05',start:'15:37', taikin:'22:43', rosen:'天理',            kitan:'23:15' },
-                             doy:{ okibo:'13:20',shukkin:'14:50',tochaku:'15:20',start:'15:54', taikin:'22:08', rosen:'',               kitan:'22:40' },
-                             nch:{ okibo:'13:20',shukkin:'14:50',tochaku:'15:20',start:'15:54', taikin:'22:08', rosen:'',               kitan:'22:40' } },
+                             doy:{ okibo:'13:20',shukkin:'14:50',tochaku:'15:20',start:'15:54', taikin:'22:08', rosen:'天理',               kitan:'22:40' },
+                             nch:{ okibo:'13:20',shukkin:'14:50',tochaku:'15:20',start:'15:54', taikin:'22:08', rosen:'天理',               kitan:'22:40' } },
     { dia:36, type:'',       hei:{ okibo:'8:10', shukkin:'9:40', tochaku:'10:10',start:'10:42', taikin:'19:20', rosen:'シャープ',         kitan:'19:50' },
-                             doy:{ okibo:'9:30', shukkin:'11:00',tochaku:'11:30',start:'12:02', taikin:'20:23', rosen:'',               kitan:'20:55' },
-                             nch:{ okibo:'9:30', shukkin:'11:00',tochaku:'11:30',start:'12:02', taikin:'20:23', rosen:'',               kitan:'20:55' } },
+                             doy:{ okibo:'9:30', shukkin:'11:00',tochaku:'11:30',start:'12:02', taikin:'20:23', rosen:'シャープ',               kitan:'20:55' },
+                             nch:{ okibo:'9:30', shukkin:'11:00',tochaku:'11:30',start:'12:02', taikin:'20:23', rosen:'シャープ',               kitan:'20:55' } },
     { dia:37, type:'公休',   hei:null, doy:null, nch:null },
     { dia:38, type:'',       hei:{ okibo:'4:30', shukkin:'6:00', tochaku:'6:30', start:'7:00',  taikin:'19:26', rosen:'阪奈',            kitan:'20:00' },
-                             doy:{ okibo:'5:55', shukkin:'7:25', tochaku:'7:55', start:'8:28',  taikin:'18:59', rosen:'',               kitan:'19:30' },
-                             nch:{ okibo:'5:55', shukkin:'7:25', tochaku:'7:55', start:'8:28',  taikin:'18:59', rosen:'',               kitan:'19:30' } },
+                             doy:{ okibo:'5:55', shukkin:'7:25', tochaku:'7:55', start:'8:28',  taikin:'18:59', rosen:'阪奈',               kitan:'19:30' },
+                             nch:{ okibo:'5:55', shukkin:'7:25', tochaku:'7:55', start:'8:28',  taikin:'18:59', rosen:'阪奈',               kitan:'19:30' } },
     { dia:39, type:'中間',   hei:{ okibo:'4:35', shukkin:'6:05', tochaku:'6:35', start:'7:09',  taikin:'10:22', rosen:'シャープ・天理',   kitan:'10:55',
-                                   okibo2:'13:40', shukkin2:'15:10', tochaku2:'15:40', start2:'16:10', taikin2:'22:08', kitan2:'22:40' },
+                                   okibo2:'13:40', shukkin2:'15:10', tochaku2:'15:40', start2:'16:10', taikin2:'22:08', kitan2:'22:40', rosen2:'シャープ・天理' },
                              doy:{ okibo:'7:05', shukkin:'8:35', tochaku:'9:05', start:'9:37',  taikin:'20:24', rosen:'イオン',           kitan:'20:55' },
-                             nch:{ okibo:'7:05', shukkin:'8:35', tochaku:'9:05', start:'9:37',  taikin:'20:24', rosen:'',               kitan:'20:55' } },
+                             nch:{ okibo:'7:05', shukkin:'8:35', tochaku:'9:05', start:'9:37',  taikin:'20:24', rosen:'イオン',           kitan:'20:55' } },
     { dia:40, type:'',       hei:{ okibo:'10:35',shukkin:'12:05',tochaku:'12:35',start:'13:09', taikin:'22:58', rosen:'イオン',           kitan:'23:30' },
                              doy:{ okibo:'11:20',shukkin:'12:50',tochaku:'13:20',start:'13:53', taikin:'21:24', rosen:'山村・天理',        kitan:'21:55' },
-                             nch:{ okibo:'11:20',shukkin:'12:50',tochaku:'13:20',start:'13:53', taikin:'21:24', rosen:'',               kitan:'21:55' } },
+                             nch:{ okibo:'11:20',shukkin:'12:50',tochaku:'13:20',start:'13:53', taikin:'21:24', rosen:'山村・天理',               kitan:'21:55' } },
     { dia:41, type:'',       hei:{ okibo:'11:10',shukkin:'12:40',tochaku:'13:10',start:'13:42', taikin:'22:29', rosen:'シャープ',         kitan:'23:00' },
-                             doy:{ okibo:'10:30',shukkin:'12:00',tochaku:'12:30',start:'13:02', taikin:'22:43', rosen:'',               kitan:'23:15' },
-                             nch:{ okibo:'10:30',shukkin:'12:00',tochaku:'12:30',start:'13:02', taikin:'22:43', rosen:'',               kitan:'23:15' } },
+                             doy:{ okibo:'10:30',shukkin:'12:00',tochaku:'12:30',start:'13:02', taikin:'22:43', rosen:'シャープ',               kitan:'23:15' },
+                             nch:{ okibo:'10:30',shukkin:'12:00',tochaku:'12:30',start:'13:02', taikin:'22:43', rosen:'シャープ',               kitan:'23:15' } },
     { dia:42, type:'公休',   hei:null, doy:null, nch:null },
     { dia:43, type:'',       hei:{ okibo:'13:00',shukkin:'14:30',tochaku:'15:00',start:'15:30', taikin:'22:18', rosen:'シャープ',         kitan:'22:50' },
                              doy:{ type:'公休' }, nch:{ type:'公休' } },
     { dia:44, type:'',       hei:{ okibo:'12:40',shukkin:'14:10',tochaku:'14:40',start:'15:12', taikin:'24:17', rosen:'イオン',           kitan:'24:50' },
-                             doy:{ okibo:'13:00',shukkin:'14:30',tochaku:'15:00',start:'15:32', taikin:'24:13', rosen:'',               kitan:'24:45' },
-                             nch:{ okibo:'13:00',shukkin:'14:30',tochaku:'15:00',start:'15:32', taikin:'24:13', rosen:'',               kitan:'24:45' } },
+                             doy:{ okibo:'13:00',shukkin:'14:30',tochaku:'15:00',start:'15:32', taikin:'24:13', rosen:'イオン',               kitan:'24:45' },
+                             nch:{ okibo:'13:00',shukkin:'14:30',tochaku:'15:00',start:'15:32', taikin:'24:13', rosen:'イオン',               kitan:'24:45' } },
     { dia:45, type:'',       hei:{ okibo:'14:50',shukkin:'16:20',tochaku:'16:50',start:'17:24', taikin:'24:23', rosen:'天理',            kitan:'24:55' },
-                             doy:{ okibo:'14:50',shukkin:'16:20',tochaku:'16:50',start:'17:20', taikin:'23:34', rosen:'',               kitan:'24:05' },
-                             nch:{ okibo:'14:50',shukkin:'16:20',tochaku:'16:50',start:'17:20', taikin:'23:34', rosen:'',               kitan:'24:05' } },
+                             doy:{ okibo:'14:50',shukkin:'16:20',tochaku:'16:50',start:'17:20', taikin:'23:34', rosen:'天理',               kitan:'24:05' },
+                             nch:{ okibo:'14:50',shukkin:'16:20',tochaku:'16:50',start:'17:20', taikin:'23:34', rosen:'天理',               kitan:'24:05' } },
     { dia:46, type:'',       hei:{ okibo:'13:10',shukkin:'14:40',tochaku:'15:10',start:'15:44', taikin:'23:52', rosen:'西大寺',           kitan:'24:25' },
-                             doy:{ okibo:'13:10',shukkin:'14:40',tochaku:'15:10',start:'15:44', taikin:'22:32', rosen:'',               kitan:'23:05' },
-                             nch:{ okibo:'13:10',shukkin:'14:40',tochaku:'15:10',start:'15:44', taikin:'22:32', rosen:'',               kitan:'23:05' } },
+                             doy:{ okibo:'13:10',shukkin:'14:40',tochaku:'15:10',start:'15:44', taikin:'22:32', rosen:'西大寺',               kitan:'23:05' },
+                             nch:{ okibo:'13:10',shukkin:'14:40',tochaku:'15:10',start:'15:44', taikin:'22:32', rosen:'西大寺',               kitan:'23:05' } },
     { dia:47, type:'公休',   hei:null, doy:null, nch:null },
     { dia:48, type:'公休',   hei:null, doy:null, nch:null },
     { dia:49, type:'中間',   hei:{ okibo:'3:35', shukkin:'5:05', tochaku:'5:35', start:'6:09',  taikin:'9:01',  rosen:'シャープ',         kitan:'9:35',
-                                   okibo2:'14:00', shukkin2:'15:30', tochaku2:'16:00', start2:'16:32', taikin2:'19:54', kitan2:'20:25' },
-                             doy:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:10',  taikin:'13:35', rosen:'',               kitan:'14:05' },
-                             nch:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:10',  taikin:'13:35', rosen:'',               kitan:'14:05' } },
+                                   okibo2:'14:00', shukkin2:'15:30', tochaku2:'16:00', start2:'16:32', taikin2:'19:54', kitan2:'20:25', rosen2:'シャープ' },
+                             doy:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:10',  taikin:'13:35', rosen:'シャープ',          kitan:'14:05' },
+                             nch:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:10',  taikin:'13:35', rosen:'シャープ',          kitan:'14:05' } },
     { dia:50, type:'',       hei:{ okibo:'5:05', shukkin:'6:35', tochaku:'7:05', start:'7:36',  taikin:'18:45', rosen:'阪奈',            kitan:'19:15' },
-                             doy:{ okibo:'6:00', shukkin:'7:30', tochaku:'8:00', start:'8:30',  taikin:'18:45', rosen:'',               kitan:'19:15' },
-                             nch:{ okibo:'6:00', shukkin:'7:30', tochaku:'8:00', start:'8:30',  taikin:'18:45', rosen:'',               kitan:'19:15' } },
+                             doy:{ okibo:'6:00', shukkin:'7:30', tochaku:'8:00', start:'8:30',  taikin:'18:45', rosen:'阪奈',               kitan:'19:15' },
+                             nch:{ okibo:'6:00', shukkin:'7:30', tochaku:'8:00', start:'8:30',  taikin:'18:45', rosen:'阪奈',               kitan:'19:15' } },
     { dia:51, type:'',       hei:{ okibo:'3:55', shukkin:'5:25', tochaku:'5:55', start:'6:26',  taikin:'19:42', rosen:'天理',            kitan:'20:15' },
-                             doy:{ okibo:'3:50', shukkin:'5:20', tochaku:'5:50', start:'6:21',  taikin:'18:25', rosen:'',               kitan:'18:55' },
-                             nch:{ okibo:'3:50', shukkin:'5:20', tochaku:'5:50', start:'6:21',  taikin:'18:25', rosen:'',               kitan:'18:55' } },
+                             doy:{ okibo:'3:50', shukkin:'5:20', tochaku:'5:50', start:'6:21',  taikin:'18:25', rosen:'天理',               kitan:'18:55' },
+                             nch:{ okibo:'3:50', shukkin:'5:20', tochaku:'5:50', start:'6:21',  taikin:'18:25', rosen:'天理',               kitan:'18:55' } },
     { dia:52, type:'',       hei:{ okibo:'3:05', shukkin:'4:35', tochaku:'5:05', start:'5:38',  taikin:'16:20', rosen:'山村',            kitan:'16:50' },
-                             doy:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:11',  taikin:'13:29', rosen:'',               kitan:'14:00' },
-                             nch:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:11',  taikin:'13:29', rosen:'',               kitan:'14:00' } },
+                             doy:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:11',  taikin:'13:29', rosen:'山村',               kitan:'14:00' },
+                             nch:{ okibo:'2:40', shukkin:'4:10', tochaku:'4:40', start:'5:11',  taikin:'13:29', rosen:'山村',               kitan:'14:00' } },
     { dia:53, type:'公休',   hei:null, doy:null, nch:null },
     { dia:54, type:'中間',   hei:{ okibo:'3:30', shukkin:'5:00', tochaku:'5:30', start:'6:01',  taikin:'9:27',  rosen:'山村',            kitan:'10:00',
-                                   okibo2:'11:20', shukkin2:'12:50', tochaku2:'13:20', start2:'13:53', taikin2:'19:46', kitan2:'20:20' },
-                             doy:{ okibo:'3:35', shukkin:'5:05', tochaku:'5:35', start:'6:08',  taikin:'13:51', rosen:'',               kitan:'14:25' },
-                             nch:{ okibo:'3:35', shukkin:'5:05', tochaku:'5:35', start:'6:08',  taikin:'13:51', rosen:'',               kitan:'14:25' } },
+                                   okibo2:'11:20', shukkin2:'12:50', tochaku2:'13:20', start2:'13:53', taikin2:'19:46', kitan2:'20:20', rosen2:'山村' },
+                             doy:{ okibo:'3:35', shukkin:'5:05', tochaku:'5:35', start:'6:08',  taikin:'13:51', rosen:'山村',            kitan:'14:25' },
+                             nch:{ okibo:'3:35', shukkin:'5:05', tochaku:'5:35', start:'6:08',  taikin:'13:51', rosen:'山村',            kitan:'14:25' } },
     { dia:55, type:'',       hei:{ okibo:'4:05', shukkin:'5:35', tochaku:'6:05', start:'6:39',  taikin:'18:00', rosen:'阪奈',            kitan:'18:30' },
-                             doy:{ okibo:'4:05', shukkin:'5:35', tochaku:'6:05', start:'6:38',  taikin:'18:00', rosen:'',               kitan:'18:30' },
-                             nch:{ okibo:'4:05', shukkin:'5:35', tochaku:'6:05', start:'6:38',  taikin:'18:00', rosen:'',               kitan:'18:30' } },
+                             doy:{ okibo:'4:05', shukkin:'5:35', tochaku:'6:05', start:'6:38',  taikin:'18:00', rosen:'阪奈',               kitan:'18:30' },
+                             nch:{ okibo:'4:05', shukkin:'5:35', tochaku:'6:05', start:'6:38',  taikin:'18:00', rosen:'阪奈',               kitan:'18:30' } },
     { dia:56, type:'',       hei:{ okibo:'4:15', shukkin:'5:45', tochaku:'6:15', start:'6:45',  taikin:'18:46', rosen:'西大寺',           kitan:'19:20' },
-                             doy:{ okibo:'5:50', shukkin:'7:20', tochaku:'7:50', start:'8:20',  taikin:'18:45', rosen:'',               kitan:'19:15' },
-                             nch:{ okibo:'5:50', shukkin:'7:20', tochaku:'7:50', start:'8:20',  taikin:'18:45', rosen:'',               kitan:'19:15' } },
+                             doy:{ okibo:'5:50', shukkin:'7:20', tochaku:'7:50', start:'8:20',  taikin:'18:45', rosen:'西大寺',               kitan:'19:15' },
+                             nch:{ okibo:'5:50', shukkin:'7:20', tochaku:'7:50', start:'8:20',  taikin:'18:45', rosen:'西大寺',               kitan:'19:15' } },
     { dia:57, type:'公休',   hei:null, doy:null, nch:null },
   ];
 
@@ -1273,28 +1300,35 @@ function renderIchiran() {
     const st  = isSecond ? sd.start2   : sd.start;
     const tk  = isSecond ? sd.taikin2  : sd.taikin;
     const kt  = isSecond ? sd.kitan2   : sd.kitan;
-    const rs  = isSecond ? '' : (sd.rosen || '');
-    const cells = [
+    const rs  = isSecond ? (sd.rosen2 || '') : (sd.rosen || '');
+    const row1 = [
       ['起床', ok||'—', ''],
       ['出社', sk||'—', ''],
       ['到着', tc||'—', ''],
-      ['出勤', st||'—', 'start'],
-      ['退勤', tk||'—', 'taikin'],
-      ['路線', rs||'—', ''],
-      ['帰宅', kt||'—', ''],
     ].filter(([lbl]) => {
       if (lbl==='起床') return SETTINGS.showOkibo;
       if (lbl==='出社') return SETTINGS.showShukkin;
       if (lbl==='到着') return SETTINGS.showTochaku;
+      return true;
+    });
+    const row2 = [
+      ['出勤', st||'—', 'start'],
+      ['退勤', tk||'—', 'taikin'],
+      ['帰宅', kt||'—', ''],
+    ].filter(([lbl]) => {
       if (lbl==='出勤') return SETTINGS.showShukkinTime;
       if (lbl==='退勤') return SETTINGS.showTaikinTime;
       if (lbl==='帰宅') return SETTINGS.showKikaku;
       return true;
     });
-    const cols = cells.length <= 4 ? cells.length : 4;
-    return `<div class="ich-time-grid" style="grid-template-columns:repeat(${cols},1fr)">
-      ${cells.map(([lbl,val,cls])=>`<div class="ich-time-cell"><div class="ich-time-cell-lbl">${lbl}</div><div class="ich-time-cell-val ${cls}">${val}</div></div>`).join('')}
-    </div>${rs ? `<div class="ich-rosen-row">🚌 ${rs}</div>` : ''}`;
+    const cell = ([lbl,val,cls]) =>
+      `<div class="ich-time-cell"><div class="ich-time-cell-lbl">${lbl}</div><div class="ich-time-cell-val ${cls}">${val}</div></div>`;
+    const row1Html = row1.length
+      ? `<div class="ich-time-row" style="grid-template-columns:repeat(${row1.length},1fr)">${row1.map(cell).join('')}</div>` : '';
+    const row2Html = row2.length
+      ? `<div class="ich-time-row" style="grid-template-columns:repeat(${row2.length},1fr)">${row2.map(cell).join('')}</div>` : '';
+    const row3Html = `<div class="ich-rosen-row3">🚌 ${rs||'—'}</div>`;
+    return `<div class="ich-time-rows">${row1Html}${row2Html}${row3Html}</div>`;
   }
 
   function dowBlockHtml(label, cls, sd, isTodayDow, isMiddle) {
@@ -1330,8 +1364,8 @@ function renderIchiran() {
 
     const bodyHtml = isKyukyu
       ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:13px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
-      : (d.type === '予備' || d.type === '手入')
-      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#8a6000;font-weight:700;font-size:13px;padding:6px 0">${d.type}</div></div>`
+      : (d.type === '予備')
+      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#2a9a4a;font-weight:700;font-size:13px;padding:6px 0">予　　　備</div></div>`
       : `<div class="ich-card-body-inner">
           ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle)}
           ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false)}
