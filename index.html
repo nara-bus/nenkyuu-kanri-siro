@@ -633,11 +633,15 @@
     box-shadow: 0 2px 0 rgba(40,110,70,0.18), inset 0 1px 0 rgba(255,255,255,0.8);
     font-size: 20px; font-weight: 800; color: #2d5a47; line-height: 1;
   }
+  @keyframes ich-num-glow {
+    0%, 100% { box-shadow: 0 2px 0 rgba(160,110,0,0.22), inset 0 1px 0 rgba(255,255,255,0.4), 0 0 6px rgba(240,180,0,0.3); }
+    50%       { box-shadow: 0 2px 0 rgba(160,110,0,0.22), inset 0 1px 0 rgba(255,255,255,0.4), 0 0 16px rgba(240,180,0,0.75), 0 0 28px rgba(240,180,0,0.35); }
+  }
   .ich-card-today .ich-card-num {
     background: linear-gradient(170deg, #f5c500 0%, #e8a800 100%);
     border-color: rgba(180,130,0,0.35);
-    box-shadow: 0 2px 0 rgba(160,110,0,0.22), inset 0 1px 0 rgba(255,255,255,0.4);
     color: #fff;
+    animation: ich-num-glow 2.4s ease-in-out infinite;
   }
   .ich-card-num-sub { font-size: 9px; font-weight: 700; margin-top: 1px; color: #5a8a70; }
   .ich-card-today .ich-card-num-sub { color: rgba(255,255,255,0.85); }
@@ -656,6 +660,7 @@
   }
   .ich-card-preview .pv-time { font-weight: 700; color: #3a6e50; }
   .ich-card-preview .pv-kyukyu { color: #e03a3a; font-weight: 700; }
+  .ich-card-preview .pv-yobi { color: #2d4a3e; font-weight: 700; }
 
   .ich-card-chevron {
     font-size: 12px; color: #90b8a0;
@@ -707,6 +712,11 @@
     padding: 8px 10px;
     text-align: center; font-size: 13px; font-weight: 700;
     color: #e03a3a; letter-spacing: 0.15em;
+  }
+  .ich-dow-yobi {
+    padding: 8px 10px;
+    text-align: center; font-size: 13px; font-weight: 700;
+    color: #2d4a3e; letter-spacing: 0.15em;
   }
 
   /* 時刻グリッド */
@@ -1280,8 +1290,11 @@ function renderIchiran() {
   }
 
   function previewHtml(d) {
-    if (d.type === '公休' || d.type === '予備' || d.type === '手入') {
-      return `<span class="pv-kyukyu">${d.type}</span>`;
+    if (d.type === '公休') {
+      return `<span class="pv-kyukyu">公休</span>`;
+    }
+    if (d.type === '予備') {
+      return `<span class="pv-yobi">予備</span>`;
     }
     // 今日の曜日に対応するシフトのstart時刻をプレビュー
     const src = todayDayType === '土曜' ? d.doy : todayDayType === '日祝' ? d.nch : d.hei;
@@ -1293,7 +1306,7 @@ function renderIchiran() {
   function timeGridHtml(sd, isSecond) {
     if (!sd) return '<div class="ich-dow-kyukyu">公　休</div>';
     if (sd.type === '公休') return '<div class="ich-dow-kyukyu">公　休</div>';
-    if (sd.yobi) return '<div class="ich-dow-kyukyu">予　備</div>';
+    if (sd.yobi) return '<div class="ich-dow-yobi">予　備</div>';
     const ok  = isSecond ? sd.okibo2   : sd.okibo;
     const sk  = isSecond ? sd.shukkin2 : sd.shukkin;
     const tc  = isSecond ? sd.tochaku2 : sd.tochaku;
@@ -1365,7 +1378,7 @@ function renderIchiran() {
     const bodyHtml = isKyukyu
       ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:13px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
       : (d.type === '予備')
-      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#2a9a4a;font-weight:700;font-size:13px;padding:6px 0">予　　　備</div></div>`
+      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#2d4a3e;font-weight:700;font-size:13px;padding:6px 0">予　　　備</div></div>`
       : `<div class="ich-card-body-inner">
           ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle)}
           ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false)}
