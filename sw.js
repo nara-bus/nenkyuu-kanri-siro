@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinmu-v4';
+const CACHE_NAME = 'kinmu-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,18 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // index.htmlはネットワークファースト（常に最新を取得）
+  if (e.request.url.endsWith('index.html') || e.request.url.endsWith('/')) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        const clone = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // その他（アイコン等）はキャッシュファースト
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
