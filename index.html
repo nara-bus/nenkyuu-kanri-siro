@@ -662,7 +662,7 @@
   }
   .ich-card-preview .pv-time { font-weight: 700; color: #3a6e50; }
   .ich-card-preview .pv-kyukyu { color: #e03a3a; font-weight: 700; }
-  .ich-card-preview .pv-yobi { color: #2d4a3e; font-weight: 700; }
+  .ich-card-preview .pv-yobi { color: #3a6e50; font-weight: 700; }
 
   .ich-card-chevron {
     font-size: 12px; color: #90b8a0;
@@ -718,7 +718,7 @@
   .ich-dow-yobi {
     padding: 8px 10px;
     text-align: center; font-size: 16px; font-weight: 700;
-    color: #2d4a3e; letter-spacing: 0.15em;
+    color: #3a6e50; letter-spacing: 0.15em;
   }
 
   /* 時刻グリッド */
@@ -1135,7 +1135,7 @@ function calcTime(baseTime, offsetMin) {
 }
 
 function buildShiftCard(shifts, isKyukyu, isYobi) {
-  if (isYobi) return `<div class="kyukyu-card"><span class="kyukyu-icon">📋</span><span class="yobi-text">予　備</span></div>`;
+  if (isYobi) return `<div class="kyukyu-card"><span class="yobi-text">予　備</span></div>`;
   if (isKyukyu) {
     return `<div class="kyukyu-card"><span class="kyukyu-icon">🏖️</span><span class="kyukyu-text">公　休</span></div>`;
   }
@@ -1386,7 +1386,7 @@ function renderIchiran() {
     const bodyHtml = isKyukyu
       ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:16px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
       : (d.type === '予備')
-      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#2d4a3e;font-weight:700;font-size:16px;padding:6px 0">予　　　備</div></div>`
+      ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#3a6e50;font-weight:700;font-size:16px;padding:6px 0">予　　　備</div></div>`
       : `<div class="ich-card-body-inner">
           ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle)}
           ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false)}
