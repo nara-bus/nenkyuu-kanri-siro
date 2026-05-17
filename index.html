@@ -95,26 +95,7 @@
       inset 0 1px 0 rgba(255,255,255,0.9);
   }
   .content {
-    overflow: hidden; position: relative; padding: 0;
-  }
-  .tab-slider {
-    display: flex;
-    width: 300%;
-    transform: translateX(0%);
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-  }
-  .tab-pane {
-    width: 33.3333%;
-    flex-shrink: 0;
-    padding: 8px 16px 40px;
-    box-sizing: border-box;
-    min-height: 50vh;
-  }
-  #view-today-tomorrow, #view-ichiran, #view-settings, #view-week {
-    will-change: transform;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    overflow: hidden; position: relative; padding: 8px 16px 40px;
   }
   .section-label {
     font-size: 11px;
@@ -829,11 +810,9 @@
 </div>
 
 <div class="content">
-  <div class="tab-slider" id="tab-slider">
-    <div class="tab-pane" id="view-today-tomorrow"></div>
-    <div class="tab-pane" id="view-ichiran"></div>
-    <div class="tab-pane" id="view-settings"></div>
-  </div>
+  <div id="view-today-tomorrow"></div>
+  <div id="view-ichiran" class="hidden"></div>
+  <div id="view-settings" class="hidden"></div>
 </div>
 
 <div class="footer">Bダイヤ 2026.4.1 ／ 57日サイクル（設定画面で基準日・ダイヤ番号を設定）</div>
@@ -1268,25 +1247,31 @@ function switchTab(view, dir) {
     );
   });
 
-  // スライダー移動
   const TABS = ['week', 'ichiran', 'settings'];
   const toIdx = TABS.indexOf(view);
 
   if (view === 'settings') renderSettings();
   if (view === 'ichiran') renderIchiran();
 
-  document.getElementById('tab-slider').style.transform = `translateX(${-toIdx * 33.3333}%)`;
+  const viewMap = {
+    week:     document.getElementById('view-today-tomorrow'),
+    ichiran:  document.getElementById('view-ichiran'),
+    settings: document.getElementById('view-settings'),
+  };
 
-  // 一覧表はtodayカードをヘッダー直下に表示
+  Object.entries(viewMap).forEach(([k, el]) => {
+    if (el) el.classList.toggle('hidden', k !== view);
+  });
+
   if (view === 'ichiran') {
-    setTimeout(() => {
-      const todayCard = document.querySelector('.ich-card-today');
-      if (todayCard) {
-        const headerH = document.querySelector('.header')?.offsetHeight || 0;
-        const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
-      }
-    }, 280);
+    const todayCard = document.querySelector('.ich-card-today');
+    if (todayCard) {
+      const headerH = document.querySelector('.header')?.offsetHeight || 0;
+      const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   } else {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
