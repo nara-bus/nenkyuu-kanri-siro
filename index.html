@@ -282,6 +282,7 @@
   }
   .kyukyu-icon { font-size: 22px; }
   .kyukyu-text { font-size: 18px; font-weight: 700; color: #e03050; }
+  .yobi-text { font-size: 18px; font-weight: 700; color: #6a9e85; }
   .footer {
     text-align: center;
     padding: 0 20px 30px;
@@ -1134,7 +1135,7 @@ function calcTime(baseTime, offsetMin) {
 }
 
 function buildShiftCard(shifts, isKyukyu, isYobi) {
-  if (isYobi) return `<div class="kyukyu-card"><span class="kyukyu-icon">📋</span><span class="kyukyu-text">予　備</span></div>`;
+  if (isYobi) return `<div class="kyukyu-card"><span class="kyukyu-icon">📋</span><span class="yobi-text">予　備</span></div>`;
   if (isKyukyu) {
     return `<div class="kyukyu-card"><span class="kyukyu-icon">🏖️</span><span class="kyukyu-text">公　休</span></div>`;
   }
