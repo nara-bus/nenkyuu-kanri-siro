@@ -95,7 +95,21 @@
       inset 0 1px 0 rgba(255,255,255,0.9);
   }
   .content {
-    overflow: hidden; position: relative; padding: 8px 16px 40px;
+    overflow: hidden; position: relative; padding: 0;
+  }
+  .tab-slider {
+    display: flex;
+    width: 300%;
+    transform: translateX(0%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+  .tab-pane {
+    width: 33.3333%;
+    flex-shrink: 0;
+    padding: 8px 16px 40px;
+    box-sizing: border-box;
+    min-height: 50vh;
   }
   #view-today-tomorrow, #view-ichiran, #view-settings, #view-week {
     will-change: transform;
@@ -815,10 +829,11 @@
 </div>
 
 <div class="content">
-  <div id="view-today-tomorrow"></div>
-  <div id="view-week" class="hidden"></div>
-  <div id="view-settings" class="hidden"></div>
-  <div id="view-ichiran" class="hidden"></div>
+  <div class="tab-slider" id="tab-slider">
+    <div class="tab-pane" id="view-today-tomorrow"></div>
+    <div class="tab-pane" id="view-ichiran"></div>
+    <div class="tab-pane" id="view-settings"></div>
+  </div>
 </div>
 
 <div class="footer">Bダイヤ 2026.4.1 ／ 57日サイクル（設定画面で基準日・ダイヤ番号を設定）</div>
@@ -1253,64 +1268,28 @@ function switchTab(view, dir) {
     );
   });
 
-  // スライドアニメーション
+  // スライダー移動
   const TABS = ['week', 'ichiran', 'settings'];
-  const fromIdx = TABS.indexOf(prev);
-  const toIdx   = TABS.indexOf(view);
-  const slideDir = (dir !== undefined) ? dir : (toIdx > fromIdx ? -1 : 1);
-
-  const viewMap = {
-    week: document.getElementById('view-today-tomorrow'),
-    ichiran: document.getElementById('view-ichiran'),
-    settings: document.getElementById('view-settings'),
-  };
-  const incoming = viewMap[view];
-  const outgoing = viewMap[prev];
+  const toIdx = TABS.indexOf(view);
 
   if (view === 'settings') renderSettings();
   if (view === 'ichiran') renderIchiran();
 
-  // 他のビューを隠す（incoming/outgoing以外）
-  ['view-today-tomorrow','view-week','view-ichiran','view-settings'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && el !== incoming && el !== outgoing) el.classList.add('hidden');
-  });
+  document.getElementById('tab-slider').style.transform = `translateX(${-toIdx * 33.3333}%)`;
 
-  // incomingを画面外に配置してから表示
-  incoming.style.transition = 'none';
-  incoming.style.transform = `translateX(${-slideDir * 100}%)`;
-  incoming.classList.remove('hidden');
-
-  // 1フレーム待ってからトランジション開始
-  requestAnimationFrame(() => {
-    incoming.style.transition = 'transform 0.28s cubic-bezier(0.4,0,0.2,1)';
-    outgoing.style.transition = 'transform 0.28s cubic-bezier(0.4,0,0.2,1)';
-    incoming.style.transform = 'translateX(0)';
-    outgoing.style.transform = `translateX(${slideDir * 100}%)`;
-
-    const onEnd = () => {
-      outgoing.classList.add('hidden');
-      outgoing.style.transform = '';
-      outgoing.style.transition = '';
-      incoming.style.transition = '';
-
-      // タブ切替後のスクロール位置リセット
-      if (view === 'week' || view === 'settings') {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      } else if (view === 'ichiran') {
-        const todayCard = document.querySelector('.ich-card-today');
-        if (todayCard) {
-          const headerH = document.querySelector('.header')?.offsetHeight || 0;
-          const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
-          window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        }
+  // 一覧表はtodayカードをヘッダー直下に表示
+  if (view === 'ichiran') {
+    setTimeout(() => {
+      const todayCard = document.querySelector('.ich-card-today');
+      if (todayCard) {
+        const headerH = document.querySelector('.header')?.offsetHeight || 0;
+        const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
       }
-    };
-
-    incoming.addEventListener('transitionend', onEnd, { once: true });
-  });
+    }, 280);
+  } else {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
 }
 
 function chk(key) { return SETTINGS[key] ? 'checked' : ''; }
