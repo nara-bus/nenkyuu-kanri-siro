@@ -905,19 +905,50 @@ function saveDiaOverrides() {
   try { localStorage.setItem('diaOverrides', JSON.stringify(DIA_OVERRIDES)); } catch(e) {}
 }
 
+// DIADATAの時刻文字列（24:xx / 25:xx）をSCHEDULES形式（+00:xx）に変換
+function _convTime(t) {
+  if (!t) return null;
+  const parts = t.split(':');
+  const h = parseInt(parts[0]), m = parseInt(parts[1]);
+  if (h >= 24) return '+' + String(h - 24).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+// DIADATAの1曜日分データをSCHEDULES互換のshiftオブジェクトに変換
+function _diaRowToShifts(row, dateKey) {
+  if (!row || row.type === '公休') return null;
+  if (row.yobi) return 'yobi';
+  // 中間（前半＋後半）
+  if (row.okibo2 !== undefined) {
+    return [
+      { shukkinTime: _convTime(row.start),  taikinTime: _convTime(row.taikin), rosen: row.rosen  || '', kikaku: _convTime(row.kitan),  _dateKey: dateKey },
+      { shukkinTime: _convTime(row.start2), taikinTime: _convTime(row.taikin2),rosen: row.rosen2 || '', kikaku: _convTime(row.kitan2), _dateKey: dateKey },
+    ];
+  }
+  return [{ shukkinTime: _convTime(row.start), taikinTime: _convTime(row.taikin), rosen: row.rosen || '', kikaku: _convTime(row.kitan), _dateKey: dateKey }];
+}
+
 function getSchedule(date) {
   const key = getDateKey(date);
   const dayType = getDayType(date);
   const dia = DIA_OVERRIDES[key] !== undefined ? DIA_OVERRIDES[key] : getDiaForDate(date);
-  const diaData = SCHEDULES[String(dia)];
-  if (!diaData) return { dia, dayType, kyukyu: true };
-  const hasShift = diaData['平日'] || diaData['土曜'] || diaData['日祝'];
-  if (!hasShift) return { dia, dayType, kyukyu: true };
-  let shiftData = diaData[dayType] || (dayType === '日祝' ? diaData['土曜'] : null);
-  if (shiftData && shiftData.yobi) return { dia, dayType, yobi: true };
-  if (!shiftData || shiftData.kyukyu) return { dia, dayType, kyukyu: true };
-  const rawShifts = Array.isArray(shiftData) ? shiftData : [shiftData];
-  const shifts = rawShifts.map(sh => Object.assign({}, sh, {_dateKey: key}));
+
+  // renderIchiran内のICHIRANと同じデータをここでも参照できるよう
+  // ICHIRAN_DATA としてグローバルに持つ（後述）
+  const entry = ICHIRAN_DATA.find(r => r.dia === dia);
+  if (!entry) return { dia, dayType, kyukyu: true };
+
+  // 曜日に対応する行を選択
+  const rowKey = dayType === '平日' ? 'hei' : dayType === '土曜' ? 'doy' : 'nch';
+  const row = entry[rowKey];
+
+  if (!row) return { dia, dayType, kyukyu: true };
+  if (row.type === '公休') return { dia, dayType, kyukyu: true };
+  if (row.yobi) return { dia, dayType, yobi: true };
+
+  const shifts = _diaRowToShifts(row, key);
+  if (!shifts) return { dia, dayType, kyukyu: true };
+  if (shifts === 'yobi') return { dia, dayType, yobi: true };
   return { dia, dayType, shifts };
 }
 
@@ -1013,7 +1044,7 @@ function buildShiftCard(shifts, isKyukyu, isYobi) {
         <span class="shift-label">⑥ 帰宅（家に到着）</span>
         <span class="shift-time" style="color:#1a1a1a">${minToTime(kikakuMin)}</span>
       </div>` : ''}
-      ${sh.rosen ? `<div class="rosen-row"><span class="rosen-icon">🚌</span><span class="rosen-label">路線:</span><span class="rosen-val">${sh.rosen}</span></div>` : ''}
+      ${sh.rosen !== undefined ? `<div class="rosen-row"><span class="rosen-icon">🚌</span><span class="rosen-label">路線:</span><span class="rosen-val">${sh.rosen || '—'}</span></div>` : ''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -1130,8 +1161,7 @@ function chk(key) { return SETTINGS[key] ? 'checked' : ''; }
 
 
 // ===== 一覧表レンダリング =====
-function renderIchiran() {
-  const ICHIRAN = [
+const ICHIRAN_DATA = [
     { dia:1,  type:'',       hei:{ okibo:'4:20', shukkin:'5:50', tochaku:'6:10', start:'6:54',  taikin:'16:30', rosen:'イオン・都',      kitan:'17:00' },
                              doy:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:44',  taikin:'14:20', rosen:'イオン',          kitan:'14:50' },
                              nch:{ okibo:'4:10', shukkin:'5:40', tochaku:'6:10', start:'6:44',  taikin:'14:20', rosen:'イオン',               kitan:'14:50' } },
@@ -1277,7 +1307,10 @@ function renderIchiran() {
                              doy:{ okibo:'5:50', shukkin:'7:20', tochaku:'7:50', start:'8:20',  taikin:'18:45', rosen:'西大寺',               kitan:'19:15' },
                              nch:{ okibo:'5:50', shukkin:'7:20', tochaku:'7:50', start:'8:20',  taikin:'18:45', rosen:'西大寺',               kitan:'19:15' } },
     { dia:57, type:'公休',   hei:null, doy:null, nch:null },
-  ];
+];
+
+function renderIchiran() {
+  const ICHIRAN = ICHIRAN_DATA;
 
   const today = new Date(); today.setHours(0,0,0,0);
   const todayDia = getDiaForDate(today);
