@@ -1608,7 +1608,7 @@ function renderSettings() {
           <div class="settings-row-label">設定時間を反映した計算値を表示</div>
           <div class="settings-row-sub">OFFで従来表示（データ原本の時刻）</div>
         </div>
-        <label class="toggle-wrap"><input type="checkbox" id="tog-ichiranCalc" ${chk('ichiranCalcMode')} onchange="togglePreview()"><span class="toggle-slider"></span></label>
+        <label class="toggle-wrap"><input type="checkbox" id="tog-ichiranCalc" ${chk('ichiranCalcMode')}><span class="toggle-slider"></span></label>
       </div>
       </div>
     </div>
@@ -1629,7 +1629,6 @@ function togglePreview() {
   SETTINGS.showShukkinTime = document.getElementById('tog-shukkinTime').checked;
   SETTINGS.showTaikinTime  = document.getElementById('tog-taikinTime').checked;
   SETTINGS.showKikaku      = document.getElementById('tog-kikaku').checked;
-  SETTINGS.ichiranCalcMode = document.getElementById('tog-ichiranCalc').checked;
 }
 
 function applySettings() {
