@@ -1677,7 +1677,7 @@ function applySettings() {
 }
 
 // ========== ファイル保存・読込 ==========
-function doExport() {
+async function doExport() {
   const now = new Date();
   const fname = `出勤管理_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.json`;
   const appData = {
@@ -1689,6 +1689,25 @@ function doExport() {
     warningSuppressed: localStorage.getItem('warningSuppressed') || null,
   };
   const json = JSON.stringify(appData, null, 2);
+
+  // showSaveFilePicker対応ブラウザ（Chrome等・HTTPS環境）→ 保存先を選べる
+  if (window.showSaveFilePicker) {
+    try {
+      const fh = await window.showSaveFilePicker({
+        suggestedName: fname,
+        types: [{ description: 'JSONファイル', accept: { 'application/json': ['.json'] } }]
+      });
+      const writable = await fh.createWritable();
+      await writable.write(json);
+      await writable.close();
+      return;
+    } catch(e) {
+      if (e.name === 'AbortError') return; // キャンセルは何もしない
+      // SecurityError等はフォールバックへ
+    }
+  }
+
+  // フォールバック（Safari・ローカルファイル等）→ ダウンロードフォルダ
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1698,7 +1717,25 @@ function doExport() {
   URL.revokeObjectURL(url);
 }
 
-function loadAppFromFile() {
+async function loadAppFromFile() {
+  // showOpenFilePicker対応ブラウザ（Chrome等・HTTPS環境）→ 保存先を選べる
+  if (window.showOpenFilePicker) {
+    try {
+      const [fh] = await window.showOpenFilePicker({
+        types: [{ description: 'JSONファイル', accept: { 'application/json': ['.json'] } }],
+        multiple: false
+      });
+      const file = await fh.getFile();
+      const text = await file.text();
+      _applyImport(text, file.name);
+      return;
+    } catch(err) {
+      if (err.name === 'AbortError') return; // キャンセルは何もしない
+      // フォールバックへ
+    }
+  }
+
+  // フォールバック（input[type=file]経由）
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
@@ -1707,27 +1744,31 @@ function loadAppFromFile() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(ev) {
-      try {
-        const data = JSON.parse(ev.target.result);
-        if (data.shiftSettings)     localStorage.setItem('shiftSettings',     data.shiftSettings);
-        if (data.diaOverrides)      localStorage.setItem('diaOverrides',      data.diaOverrides);
-        if (data.shukkinOverrides)  localStorage.setItem('shukkinOverrides',  data.shukkinOverrides);
-        if (data.warningSuppressed) localStorage.setItem('warningSuppressed', data.warningSuppressed);
-
-        // データ再読み込み
-        SETTINGS = loadSettings();
-        try { DIA_OVERRIDES     = JSON.parse(localStorage.getItem('diaOverrides') || '{}'); } catch(e) { DIA_OVERRIDES = {}; }
-        try { SHUKKIN_OVERRIDES = JSON.parse(localStorage.getItem('shukkinOverrides') || '{}'); } catch(e) { SHUKKIN_OVERRIDES = {}; }
-        render();
-        if (currentView === 'settings') renderSettings();
-        alert('📂 読込完了しました！\nファイル: ' + file.name);
-      } catch(err) {
-        alert('⚠️ 読込エラー: ファイル形式が正しくありません');
-      }
+      _applyImport(ev.target.result, file.name);
     };
     reader.readAsText(file);
   };
   input.click();
+}
+
+function _applyImport(text, fname) {
+  try {
+    const data = JSON.parse(text);
+    if (data.shiftSettings)     localStorage.setItem('shiftSettings',     data.shiftSettings);
+    if (data.diaOverrides)      localStorage.setItem('diaOverrides',      data.diaOverrides);
+    if (data.shukkinOverrides)  localStorage.setItem('shukkinOverrides',  data.shukkinOverrides);
+    if (data.warningSuppressed) localStorage.setItem('warningSuppressed', data.warningSuppressed);
+
+    // データ再読み込み
+    SETTINGS = loadSettings();
+    try { DIA_OVERRIDES     = JSON.parse(localStorage.getItem('diaOverrides') || '{}'); } catch(e) { DIA_OVERRIDES = {}; }
+    try { SHUKKIN_OVERRIDES = JSON.parse(localStorage.getItem('shukkinOverrides') || '{}'); } catch(e) { SHUKKIN_OVERRIDES = {}; }
+    render();
+    if (currentView === 'settings') renderSettings();
+    alert('📂 読込完了しました！\nファイル: ' + (fname || ''));
+  } catch(err) {
+    alert('⚠️ 読込エラー: ファイル形式が正しくありません');
+  }
 }
 
 // ========== 起動時警告 ==========
