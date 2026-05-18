@@ -95,19 +95,7 @@
       inset 0 1px 0 rgba(255,255,255,0.9);
   }
   .content {
-    overflow: hidden; position: relative;
-  }
-  .tab-slider {
-    display: flex;
-    width: 300%;
-    will-change: transform;
-  }
-  .tab-panel {
-    width: 33.3333%;
-    flex-shrink: 0;
-    padding: 8px 16px 40px;
-    box-sizing: border-box;
-    min-height: 60vh;
+    overflow: hidden; position: relative; padding: 8px 16px 40px;
   }
   .section-label {
     font-size: 11px;
@@ -703,10 +691,9 @@
   }
   .ich-dow-block.doy { border-color: rgba(80,130,210,0.20); }
   .ich-dow-block.nch { border-color: rgba(200,80,80,0.18); }
-  .ich-dow-block.active-dow { box-shadow: 0 0 0 2px rgba(61,158,110,0.5); }
-  .ich-dow-block.hei.active-dow { box-shadow: 0 0 0 2px rgba(61,158,110,0.55); }
-  .ich-dow-block.doy.active-dow { box-shadow: 0 0 0 2px rgba(80,130,210,0.55); }
-  .ich-dow-block.nch.active-dow { box-shadow: 0 0 0 2px rgba(200,80,80,0.55); }
+  .ich-dow-block.next-hei { border: 2px solid rgba(40,150,90,0.70); box-shadow: 0 0 0 1px rgba(40,150,90,0.18) inset; }
+  .ich-dow-block.next-doy { border: 2px solid rgba(60,110,210,0.70); box-shadow: 0 0 0 1px rgba(60,110,210,0.18) inset; }
+  .ich-dow-block.next-nch { border: 2px solid rgba(200,50,50,0.70); box-shadow: 0 0 0 1px rgba(200,50,50,0.18) inset; }
 
   .ich-dow-header {
     display: flex; align-items: center; gap: 6px;
@@ -826,11 +813,9 @@
 </div>
 
 <div class="content">
-  <div class="tab-slider" id="tab-slider">
-    <div class="tab-panel" id="view-today-tomorrow"></div>
-    <div class="tab-panel" id="view-ichiran"></div>
-    <div class="tab-panel" id="view-settings"></div>
-  </div>
+  <div id="view-today-tomorrow"></div>
+  <div id="view-ichiran" class="hidden"></div>
+  <div id="view-settings" class="hidden"></div>
 </div>
 
 <div class="footer">Bダイヤ 2026.4.1 ／ 57日サイクル（設定画面で基準日・ダイヤ番号を設定）</div>
@@ -1002,6 +987,7 @@ const DEFAULT_SETTINGS = {
   returnAfterEnd:    0,
   showOkibo: true, showShukkin: true, showTochaku: true,
   showShukkinTime: true, showTaikinTime: true, showKikaku: true,
+  ichiranCalcMode: false,
 };
 
 function isDefaultSettings(s) {
@@ -1253,47 +1239,43 @@ function buildDayBlock(date, isToday) {
 
 let currentView = 'week';
 
-const TABS = ['week', 'ichiran', 'settings'];
-const TAB_IDX = { week: 0, ichiran: 1, settings: 2 };
-
-function getSlider() { return document.getElementById('tab-slider'); }
-
-function setSliderX(x, animate) {
-  const sl = getSlider();
-  if (!sl) return;
-  sl.style.transition = animate ? 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)' : 'none';
-  sl.style.transform = `translateX(${x}%)`;
-}
-
-function tabIndexToX(idx) {
-  return -(idx * 100 / 3);  // 3パネル分の幅に対する%
-}
-
-function switchTab(view, animate) {
-  if (view === currentView && animate !== 'force') return;
+function switchTab(view, dir) {
+  if (view === currentView) return;
+  const prev = currentView;
   currentView = view;
-  const idx = TAB_IDX[view] ?? 0;
-
   document.querySelectorAll('.tab-btn').forEach((b,i) => {
-    b.classList.toggle('active', i === idx);
+    b.classList.toggle('active',
+      (i===0 && view==='week') ||
+      (i===1 && view==='ichiran') ||
+      (i===2 && view==='settings')
+    );
   });
+
+  const TABS = ['week', 'ichiran', 'settings'];
+  const toIdx = TABS.indexOf(view);
 
   if (view === 'settings') renderSettings();
   if (view === 'ichiran') renderIchiran();
 
-  setSliderX(tabIndexToX(idx), animate !== false);
+  const viewMap = {
+    week:     document.getElementById('view-today-tomorrow'),
+    ichiran:  document.getElementById('view-ichiran'),
+    settings: document.getElementById('view-settings'),
+  };
+
+  Object.entries(viewMap).forEach(([k, el]) => {
+    if (el) el.classList.toggle('hidden', k !== view);
+  });
 
   if (view === 'ichiran') {
-    setTimeout(() => {
-      const todayCard = document.querySelector('.ich-card-today');
-      if (todayCard) {
-        const headerH = document.querySelector('.header')?.offsetHeight || 0;
-        const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }
-    }, 320);
+    const todayCard = document.querySelector('.ich-card-today');
+    if (todayCard) {
+      const headerH = document.querySelector('.header')?.offsetHeight || 0;
+      const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   } else {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
@@ -1319,6 +1301,20 @@ function renderIchiran() {
     return `<span class="ich-card-type-badge" style="background:${bg};color:${col}">${type}</span>`;
   }
 
+  // ダイヤ番号から「次に回ってくる日付」を求めてDayTypeを返す
+  function getDayTypeForDia(dia) {
+    const start = getBaseDate(); start.setHours(0,0,0,0);
+    const baseDia = getBaseDia();
+    const cycle = getCycle();
+    const todayDiff = Math.round((today - start) / 86400000);
+    const todayDiaIdx = ((todayDiff + baseDia - 1) % cycle + cycle) % cycle; // 0-based
+    const targetIdx = dia - 1; // 0-based
+    const offset = (targetIdx - todayDiaIdx + cycle) % cycle;
+    const nextDate = new Date(today);
+    nextDate.setDate(nextDate.getDate() + offset);
+    return getDayType(nextDate);
+  }
+
   function previewHtml(d) {
     if (d.type === '公休') {
       return `<span class="pv-kyukyu">公休</span>`;
@@ -1326,15 +1322,9 @@ function renderIchiran() {
     if (d.type === '予備') {
       return `<span class="pv-yobi">予備</span>`;
     }
-    // サイクル上の純粋なダイヤ番号差分で「次に来る日」を求める
-    // （DIA_OVERRIDESの影響を受けないよう getDiaForDate(today) を使う）
-    const cycle = getCycle();
-    const baseDiaToday = getDiaForDate(today);  // オーバーライドなし・純粋サイクル値
-    const diffDays = ((d.dia - baseDiaToday) % cycle + cycle) % cycle;
-    const nextDate = new Date(today);
-    nextDate.setDate(nextDate.getDate() + diffDays);
-    const diaDayType = getDayType(nextDate);
-    const src = diaDayType === '土曜' ? d.doy : diaDayType === '日祝' ? d.nch : d.hei;
+    // 各ダイヤが次に回ってくる日の曜日でプレビュー表示
+    const previewDayType = getDayTypeForDia(d.dia);
+    const src = previewDayType === '土曜' ? d.doy : previewDayType === '日祝' ? d.nch : d.hei;
     if (!src || src.type === '公休') return '<span class="pv-kyukyu">公休</span>';
     const t = src.start || src.start2 || '';
     return t ? `<span class="pv-time">${t}</span> 〜 <span class="pv-time">${src.taikin||src.taikin2||'—'}</span>` : '—';
@@ -1344,17 +1334,42 @@ function renderIchiran() {
     if (!sd) return '<div class="ich-dow-kyukyu">公　休</div>';
     if (sd.type === '公休') return '<div class="ich-dow-kyukyu">公　休</div>';
     if (sd.yobi) return '<div class="ich-dow-yobi">予　備</div>';
-    const ok  = isSecond ? sd.okibo2   : sd.okibo;
-    const sk  = isSecond ? sd.shukkin2 : sd.shukkin;
-    const tc  = isSecond ? sd.tochaku2 : sd.tochaku;
     const st  = isSecond ? sd.start2   : sd.start;
     const tk  = isSecond ? sd.taikin2  : sd.taikin;
-    const kt  = isSecond ? sd.kitan2   : sd.kitan;
     const rs  = isSecond ? (sd.rosen2 || '') : (sd.rosen || '');
+
+    const calcMode = SETTINGS.ichiranCalcMode;
+    const s = SETTINGS;
+    const wake   = s.wakeBeforeLeave   ?? 90;
+    const leave  = s.leaveBeforeWork   ?? 60;
+    const arrive = s.arriveBeforeStart ?? 30;
+    const retMin = s.returnAfterEnd    ?? 10;
+
+    let okVal, skVal, tcVal, ktVal;
+    if (calcMode) {
+      // 設定時間オフセットから計算
+      const startMin = timeToMin(_convTime(st));
+      const taikinMin = timeToMin(_convTime(tk));
+      okVal = startMin !== null ? minToTime(startMin - wake)   : '—';
+      skVal = startMin !== null ? minToTime(startMin - leave)  : '—';
+      tcVal = startMin !== null ? minToTime(startMin - arrive) : '—';
+      ktVal = taikinMin !== null ? minToTime(taikinMin + retMin) : '—';
+    } else {
+      // 従来：データそのまま
+      const ok  = isSecond ? sd.okibo2   : sd.okibo;
+      const sk  = isSecond ? sd.shukkin2 : sd.shukkin;
+      const tc  = isSecond ? sd.tochaku2 : sd.tochaku;
+      const kt  = isSecond ? sd.kitan2   : sd.kitan;
+      okVal = ok || '—';
+      skVal = sk || '—';
+      tcVal = tc || '—';
+      ktVal = kt || '—';
+    }
+
     const row1 = [
-      ['起床', ok||'—', ''],
-      ['出社', sk||'—', ''],
-      ['到着', tc||'—', ''],
+      ['起床', okVal, ''],
+      ['出社', skVal, ''],
+      ['到着', tcVal, ''],
     ].filter(([lbl]) => {
       if (lbl==='起床') return SETTINGS.showOkibo;
       if (lbl==='出社') return SETTINGS.showShukkin;
@@ -1364,7 +1379,7 @@ function renderIchiran() {
     const row2 = [
       ['出勤', st||'—', 'start'],
       ['退勤', tk||'—', 'taikin'],
-      ['帰宅', kt||'—', ''],
+      ['帰宅', ktVal, ''],
     ].filter(([lbl]) => {
       if (lbl==='出勤') return SETTINGS.showShukkinTime;
       if (lbl==='退勤') return SETTINGS.showTaikinTime;
@@ -1381,11 +1396,11 @@ function renderIchiran() {
     return `<div class="ich-time-rows">${row1Html}${row2Html}${row3Html}</div>`;
   }
 
-  function dowBlockHtml(label, cls, sd, isTodayDow, isMiddle, isActiveDow) {
+  function dowBlockHtml(label, cls, sd, isTodayDow, isMiddle, isNextDow) {
     const todayMark = isTodayDow ? '<span class="ich-dow-today-mark">TODAY</span>' : '';
-    const activeCls = isActiveDow ? ' active-dow' : '';
+    const nextCls = isNextDow ? (cls === 'doy' ? ' next-doy' : cls === 'nch' ? ' next-nch' : cls === 'hei' ? ' next-hei' : '') : '';
     if (isMiddle) {
-      return `<div class="ich-dow-block ${cls}${activeCls}">
+      return `<div class="ich-dow-block ${cls}${nextCls}">
         <div class="ich-dow-header"><span class="ich-dow-header-label">${label}</span>${todayMark}</div>
         <div class="ich-middle-sep">▲ 前半</div>
         ${timeGridHtml(sd, false)}
@@ -1396,7 +1411,7 @@ function renderIchiran() {
     const inner = (!sd || sd.type === '公休')
       ? '<div class="ich-dow-kyukyu">公　休</div>'
       : timeGridHtml(sd, false);
-    return `<div class="ich-dow-block ${cls}${activeCls}">
+    return `<div class="ich-dow-block ${cls}${nextCls}">
       <div class="ich-dow-header"><span class="ich-dow-header-label">${label}</span>${todayMark}</div>
       ${inner}
     </div>`;
@@ -1413,25 +1428,20 @@ function renderIchiran() {
     const doyTodayDow = isToday && todayDayType === '土曜';
     const nchTodayDow = isToday && todayDayType === '日祝';
 
-    // このダイヤが次に来る日の曜日を計算
-    const cycle = getCycle();
-    const baseDiaToday = getDiaForDate(today);
-    const diffDays = ((d.dia - baseDiaToday) % cycle + cycle) % cycle;
-    const nextDate = new Date(today);
-    nextDate.setDate(nextDate.getDate() + diffDays);
-    const diaDayType = getDayType(nextDate);
-    const heiActive = diaDayType === '平日';
-    const doyActive = diaDayType === '土曜';
-    const nchActive = diaDayType === '日祝';
+    // 次回出番日の曜日でハイライトするブロックを決定
+    const nextDayType = getDayTypeForDia(d.dia);
+    const heiNextHighlight = nextDayType === '平日';
+    const doyNextHighlight = nextDayType === '土曜';
+    const nchNextHighlight = nextDayType === '日祝';
 
     const bodyHtml = isKyukyu
       ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:16px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
       : (d.type === '予備')
       ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#3a6e50;font-weight:700;font-size:16px;padding:6px 0">予　　　備</div></div>`
       : `<div class="ich-card-body-inner">
-          ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle, heiActive)}
-          ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false, doyActive)}
-          ${dowBlockHtml('日祝', 'nch', d.nch, nchTodayDow, false, nchActive)}
+          ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle, heiNextHighlight)}
+          ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false, doyNextHighlight)}
+          ${dowBlockHtml('日祝', 'nch', d.nch, nchTodayDow, false, nchNextHighlight)}
         </div>`;
 
     cards += `<div class="ich-card${isToday ? ' ich-card-today' : ''}${openDefault ? ' open' : ''}" id="ich-card-${d.dia}" onclick="toggleIchCard(${d.dia})">
@@ -1580,6 +1590,13 @@ function renderSettings() {
         <span class="settings-row-label">🏠 ⑥ 帰宅時刻（家に到着）</span>
         <label class="toggle-wrap"><input type="checkbox" id="tog-kikaku" ${chk('showKikaku')} onchange="togglePreview()"><span class="toggle-slider"></span></label>
       </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">📋 一覧表モード</div>
+          <div class="settings-row-sub">ONで設定時間を反映した計算値を表示</div>
+        </div>
+        <label class="toggle-wrap"><input type="checkbox" id="tog-ichiranCalc" ${chk('ichiranCalcMode')} onchange="togglePreview()"><span class="toggle-slider"></span></label>
+      </div>
       </div>
     </div>
 
@@ -1599,6 +1616,7 @@ function togglePreview() {
   SETTINGS.showShukkinTime = document.getElementById('tog-shukkinTime').checked;
   SETTINGS.showTaikinTime  = document.getElementById('tog-taikinTime').checked;
   SETTINGS.showKikaku      = document.getElementById('tog-kikaku').checked;
+  SETTINGS.ichiranCalcMode = document.getElementById('tog-ichiranCalc').checked;
 }
 
 function applySettings() {
@@ -1634,6 +1652,7 @@ function applySettings() {
     showShukkinTime: document.getElementById('tog-shukkinTime').checked,
     showTaikinTime:  document.getElementById('tog-taikinTime').checked,
     showKikaku:      document.getElementById('tog-kikaku').checked,
+    ichiranCalcMode: document.getElementById('tog-ichiranCalc').checked,
   };
   saveSettings(SETTINGS);
   // 設定変更済みフラグをクリア（警告を次回から出さないようにする）
@@ -1940,92 +1959,42 @@ function diaNumpadOk() {
 
 updateClock();
 render();
-switchTab('week', false);
+switchTab('week');
 
 // ── スワイプで予定⇔設定を切り替え ──
 (function() {
   const el = document.querySelector('.content');
   if (!el) return;
 
-  let startX = 0, startY = 0, startTime = 0;
-  let startScrollLeft = 0;
-  let tracking = false;  // 水平スワイプとして確定したか
-  let decided = false;   // 縦/横どちらか決定済みか
-  const W = () => window.innerWidth;
+  const TABS = ['week', 'ichiran', 'settings'];
+  let startX = 0, startY = 0, startTime = 0, startScrollLeft = 0;
 
   el.addEventListener('touchstart', function(e) {
     const t = e.touches[0];
     startX = t.clientX;
     startY = t.clientY;
     startTime = Date.now();
-    tracking = false;
-    decided = false;
+    // ich-wrap のスクロール位置を記録
     const wrap = e.target.closest('.ich-wrap');
     startScrollLeft = wrap ? wrap.scrollLeft : 0;
-    // 追従開始：transitionを切る
-    const sl = getSlider();
-    if (sl) sl.style.transition = 'none';
-  }, { passive: true });
-
-  el.addEventListener('touchmove', function(e) {
-    if (!e.touches.length) return;
-    const t = e.touches[0];
-    const dx = t.clientX - startX;
-    const dy = t.clientY - startY;
-
-    // 初回movementで縦/横を決定
-    if (!decided && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
-      decided = true;
-      tracking = Math.abs(dx) > Math.abs(dy) * 1.2;
-    }
-    if (!tracking) return;
-
-    // ich-wrap内で横スクロールが起きていたら追従しない
-    const wrap = e.target.closest('.ich-wrap');
-    if (wrap && Math.abs(wrap.scrollLeft - startScrollLeft) > 5) {
-      tracking = false;
-      return;
-    }
-
-    const cur = TABS.indexOf(currentView);
-    // 端では抵抗感（ゴム引き）
-    let clampedDx = dx;
-    if ((cur === 0 && dx > 0) || (cur === TABS.length - 1 && dx < 0)) {
-      clampedDx = dx * 0.25;
-    }
-
-    const baseX = tabIndexToX(cur);  // % (負値)
-    // pxをスライダー全体幅(300vw)に対する%に変換
-    const offsetPct = (clampedDx / (W() * 3)) * 100;
-    const sl = getSlider();
-    if (sl) sl.style.transform = `translateX(${baseX + offsetPct}%)`;
   }, { passive: true });
 
   el.addEventListener('touchend', function(e) {
-    if (!tracking) return;
-    tracking = false;
-    decided = false;
-
     const t = e.changedTouches[0];
     const dx = t.clientX - startX;
     const dy = t.clientY - startY;
     const dt = Date.now() - startTime;
 
+    // 水平方向が主体 / 50px以上 / 400ms以内
+    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 0.8 || dt > 400) return;
+
+    // ich-wrap内で実際に横スクロールが起きていたらタブ切り替えしない
+    const wrap = e.target.closest('.ich-wrap');
+    if (wrap && Math.abs(wrap.scrollLeft - startScrollLeft) > 5) return;
+
     const cur = TABS.indexOf(currentView);
-    // 速度（px/ms）も考慮
-    const vx = Math.abs(dx) / dt;
-    const threshold = vx > 0.3 ? 20 : W() * 0.25;
-
-    let next = cur;
-    if (dx < -threshold && cur < TABS.length - 1) next = cur + 1;
-    if (dx > threshold && cur > 0) next = cur - 1;
-
-    if (next !== cur) {
-      switchTab(TABS[next], true);
-    } else {
-      // 元の位置に戻す
-      setSliderX(tabIndexToX(cur), true);
-    }
+    if (dx < 0 && cur < TABS.length - 1) switchTab(TABS[cur + 1], -1);
+    if (dx > 0 && cur > 0)              switchTab(TABS[cur - 1],  1);
   }, { passive: true });
 })();
 
