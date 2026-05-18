@@ -1326,6 +1326,12 @@ function renderIchiran() {
     const previewDayType = getDayTypeForDia(d.dia);
     const src = previewDayType === '土曜' ? d.doy : previewDayType === '日祝' ? d.nch : d.hei;
     if (!src || src.type === '公休') return '<span class="pv-kyukyu">公休</span>';
+
+    // 中間ダイヤ：前半・後半両方表示
+    if (d.type === '中間' && src.start2) {
+      return `<span class="pv-time">${src.start||'—'}</span>〜<span class="pv-time">${src.taikin||'—'}</span> / <span class="pv-time">${src.start2}</span>〜<span class="pv-time">${src.taikin2||'—'}</span>`;
+    }
+
     const t = src.start || src.start2 || '';
     return t ? `<span class="pv-time">${t}</span> 〜 <span class="pv-time">${src.taikin||src.taikin2||'—'}</span>` : '—';
   }
