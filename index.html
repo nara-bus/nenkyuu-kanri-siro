@@ -95,7 +95,19 @@
       inset 0 1px 0 rgba(255,255,255,0.9);
   }
   .content {
-    overflow: hidden; position: relative; padding: 8px 16px 40px;
+    overflow: hidden; position: relative;
+  }
+  .tab-slider {
+    display: flex;
+    width: 300%;
+    will-change: transform;
+  }
+  .tab-panel {
+    width: 33.3333%;
+    flex-shrink: 0;
+    padding: 8px 16px 40px;
+    box-sizing: border-box;
+    min-height: 60vh;
   }
   .section-label {
     font-size: 11px;
@@ -810,9 +822,11 @@
 </div>
 
 <div class="content">
-  <div id="view-today-tomorrow"></div>
-  <div id="view-ichiran" class="hidden"></div>
-  <div id="view-settings" class="hidden"></div>
+  <div class="tab-slider" id="tab-slider">
+    <div class="tab-panel" id="view-today-tomorrow"></div>
+    <div class="tab-panel" id="view-ichiran"></div>
+    <div class="tab-panel" id="view-settings"></div>
+  </div>
 </div>
 
 <div class="footer">Bダイヤ 2026.4.1 ／ 57日サイクル（設定画面で基準日・ダイヤ番号を設定）</div>
@@ -1235,43 +1249,47 @@ function buildDayBlock(date, isToday) {
 
 let currentView = 'week';
 
-function switchTab(view, dir) {
-  if (view === currentView) return;
-  const prev = currentView;
-  currentView = view;
-  document.querySelectorAll('.tab-btn').forEach((b,i) => {
-    b.classList.toggle('active',
-      (i===0 && view==='week') ||
-      (i===1 && view==='ichiran') ||
-      (i===2 && view==='settings')
-    );
-  });
+const TABS = ['week', 'ichiran', 'settings'];
+const TAB_IDX = { week: 0, ichiran: 1, settings: 2 };
 
-  const TABS = ['week', 'ichiran', 'settings'];
-  const toIdx = TABS.indexOf(view);
+function getSlider() { return document.getElementById('tab-slider'); }
+
+function setSliderX(x, animate) {
+  const sl = getSlider();
+  if (!sl) return;
+  sl.style.transition = animate ? 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)' : 'none';
+  sl.style.transform = `translateX(${x}%)`;
+}
+
+function tabIndexToX(idx) {
+  return -(idx * 100 / 3);  // 3パネル分の幅に対する%
+}
+
+function switchTab(view, animate) {
+  if (view === currentView && animate !== 'force') return;
+  currentView = view;
+  const idx = TAB_IDX[view] ?? 0;
+
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
 
   if (view === 'settings') renderSettings();
   if (view === 'ichiran') renderIchiran();
 
-  const viewMap = {
-    week:     document.getElementById('view-today-tomorrow'),
-    ichiran:  document.getElementById('view-ichiran'),
-    settings: document.getElementById('view-settings'),
-  };
-
-  Object.entries(viewMap).forEach(([k, el]) => {
-    if (el) el.classList.toggle('hidden', k !== view);
-  });
+  setSliderX(tabIndexToX(idx), animate !== false);
 
   if (view === 'ichiran') {
-    const todayCard = document.querySelector('.ich-card-today');
-    if (todayCard) {
-      const headerH = document.querySelector('.header')?.offsetHeight || 0;
-      const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }
+    setTimeout(() => {
+      const todayCard = document.querySelector('.ich-card-today');
+      if (todayCard) {
+        const headerH = document.querySelector('.header')?.offsetHeight || 0;
+        const cardTop = todayCard.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: cardTop - headerH - 8, behavior: 'instant' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    }, 320);
   } else {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
@@ -1304,8 +1322,13 @@ function renderIchiran() {
     if (d.type === '予備') {
       return `<span class="pv-yobi">予備</span>`;
     }
-    // 今日の曜日に対応するシフトのstart時刻をプレビュー
-    const src = todayDayType === '土曜' ? d.doy : todayDayType === '日祝' ? d.nch : d.hei;
+    // このダイヤ番号が次に来る日付を求めてその曜日を使う
+    const cycle = getCycle();
+    const diffDays = ((d.dia - todayDia) % cycle + cycle) % cycle;
+    const nextDate = new Date(today);
+    nextDate.setDate(nextDate.getDate() + diffDays);
+    const diaDayType = getDayType(nextDate);
+    const src = diaDayType === '土曜' ? d.doy : diaDayType === '日祝' ? d.nch : d.hei;
     if (!src || src.type === '公休') return '<span class="pv-kyukyu">公休</span>';
     const t = src.start || src.start2 || '';
     return t ? `<span class="pv-time">${t}</span> 〜 <span class="pv-time">${src.taikin||src.taikin2||'—'}</span>` : '—';
@@ -1899,42 +1922,92 @@ function diaNumpadOk() {
 
 updateClock();
 render();
-switchTab('week');
+switchTab('week', false);
 
 // ── スワイプで予定⇔設定を切り替え ──
 (function() {
   const el = document.querySelector('.content');
   if (!el) return;
 
-  const TABS = ['week', 'ichiran', 'settings'];
-  let startX = 0, startY = 0, startTime = 0, startScrollLeft = 0;
+  let startX = 0, startY = 0, startTime = 0;
+  let startScrollLeft = 0;
+  let tracking = false;  // 水平スワイプとして確定したか
+  let decided = false;   // 縦/横どちらか決定済みか
+  const W = () => window.innerWidth;
 
   el.addEventListener('touchstart', function(e) {
     const t = e.touches[0];
     startX = t.clientX;
     startY = t.clientY;
     startTime = Date.now();
-    // ich-wrap のスクロール位置を記録
+    tracking = false;
+    decided = false;
     const wrap = e.target.closest('.ich-wrap');
     startScrollLeft = wrap ? wrap.scrollLeft : 0;
+    // 追従開始：transitionを切る
+    const sl = getSlider();
+    if (sl) sl.style.transition = 'none';
+  }, { passive: true });
+
+  el.addEventListener('touchmove', function(e) {
+    if (!e.touches.length) return;
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+
+    // 初回movementで縦/横を決定
+    if (!decided && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+      decided = true;
+      tracking = Math.abs(dx) > Math.abs(dy) * 1.2;
+    }
+    if (!tracking) return;
+
+    // ich-wrap内で横スクロールが起きていたら追従しない
+    const wrap = e.target.closest('.ich-wrap');
+    if (wrap && Math.abs(wrap.scrollLeft - startScrollLeft) > 5) {
+      tracking = false;
+      return;
+    }
+
+    const cur = TABS.indexOf(currentView);
+    // 端では抵抗感（ゴム引き）
+    let clampedDx = dx;
+    if ((cur === 0 && dx > 0) || (cur === TABS.length - 1 && dx < 0)) {
+      clampedDx = dx * 0.25;
+    }
+
+    const baseX = tabIndexToX(cur);  // % (負値)
+    // pxをスライダー全体幅(300vw)に対する%に変換
+    const offsetPct = (clampedDx / (W() * 3)) * 100;
+    const sl = getSlider();
+    if (sl) sl.style.transform = `translateX(${baseX + offsetPct}%)`;
   }, { passive: true });
 
   el.addEventListener('touchend', function(e) {
+    if (!tracking) return;
+    tracking = false;
+    decided = false;
+
     const t = e.changedTouches[0];
     const dx = t.clientX - startX;
     const dy = t.clientY - startY;
     const dt = Date.now() - startTime;
 
-    // 水平方向が主体 / 50px以上 / 400ms以内
-    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 0.8 || dt > 400) return;
-
-    // ich-wrap内で実際に横スクロールが起きていたらタブ切り替えしない
-    const wrap = e.target.closest('.ich-wrap');
-    if (wrap && Math.abs(wrap.scrollLeft - startScrollLeft) > 5) return;
-
     const cur = TABS.indexOf(currentView);
-    if (dx < 0 && cur < TABS.length - 1) switchTab(TABS[cur + 1], -1);
-    if (dx > 0 && cur > 0)              switchTab(TABS[cur - 1],  1);
+    // 速度（px/ms）も考慮
+    const vx = Math.abs(dx) / dt;
+    const threshold = vx > 0.3 ? 20 : W() * 0.25;
+
+    let next = cur;
+    if (dx < -threshold && cur < TABS.length - 1) next = cur + 1;
+    if (dx > threshold && cur > 0) next = cur - 1;
+
+    if (next !== cur) {
+      switchTab(TABS[next], true);
+    } else {
+      // 元の位置に戻す
+      setSliderX(tabIndexToX(cur), true);
+    }
   }, { passive: true });
 })();
 
