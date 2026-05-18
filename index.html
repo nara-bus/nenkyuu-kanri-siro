@@ -1596,10 +1596,17 @@ function renderSettings() {
         <span class="settings-row-label">🏠 ⑥ 帰宅時刻（家に到着）</span>
         <label class="toggle-wrap"><input type="checkbox" id="tog-kikaku" ${chk('showKikaku')} onchange="togglePreview()"><span class="toggle-slider"></span></label>
       </div>
+      </div>
+    </div>
+
+    <!-- 4. 一覧表モード -->
+    <div class="settings-section">
+      <div class="settings-title">📋 一覧表モード</div>
+      <div class="settings-section-body">
       <div class="settings-row">
         <div>
-          <div class="settings-row-label">📋 一覧表モード</div>
-          <div class="settings-row-sub">ONで設定時間を反映した計算値を表示</div>
+          <div class="settings-row-label">設定時間を反映した計算値を表示</div>
+          <div class="settings-row-sub">OFFで従来表示（データ原本の時刻）</div>
         </div>
         <label class="toggle-wrap"><input type="checkbox" id="tog-ichiranCalc" ${chk('ichiranCalcMode')} onchange="togglePreview()"><span class="toggle-slider"></span></label>
       </div>
