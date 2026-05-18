@@ -703,6 +703,10 @@
   }
   .ich-dow-block.doy { border-color: rgba(80,130,210,0.20); }
   .ich-dow-block.nch { border-color: rgba(200,80,80,0.18); }
+  .ich-dow-block.active-dow { box-shadow: 0 0 0 2px rgba(61,158,110,0.5); }
+  .ich-dow-block.hei.active-dow { box-shadow: 0 0 0 2px rgba(61,158,110,0.55); }
+  .ich-dow-block.doy.active-dow { box-shadow: 0 0 0 2px rgba(80,130,210,0.55); }
+  .ich-dow-block.nch.active-dow { box-shadow: 0 0 0 2px rgba(200,80,80,0.55); }
 
   .ich-dow-header {
     display: flex; align-items: center; gap: 6px;
@@ -1322,9 +1326,11 @@ function renderIchiran() {
     if (d.type === '予備') {
       return `<span class="pv-yobi">予備</span>`;
     }
-    // このダイヤ番号が次に来る日付を求めてその曜日を使う
+    // サイクル上の純粋なダイヤ番号差分で「次に来る日」を求める
+    // （DIA_OVERRIDESの影響を受けないよう getDiaForDate(today) を使う）
     const cycle = getCycle();
-    const diffDays = ((d.dia - todayDia) % cycle + cycle) % cycle;
+    const baseDiaToday = getDiaForDate(today);  // オーバーライドなし・純粋サイクル値
+    const diffDays = ((d.dia - baseDiaToday) % cycle + cycle) % cycle;
     const nextDate = new Date(today);
     nextDate.setDate(nextDate.getDate() + diffDays);
     const diaDayType = getDayType(nextDate);
@@ -1375,10 +1381,11 @@ function renderIchiran() {
     return `<div class="ich-time-rows">${row1Html}${row2Html}${row3Html}</div>`;
   }
 
-  function dowBlockHtml(label, cls, sd, isTodayDow, isMiddle) {
+  function dowBlockHtml(label, cls, sd, isTodayDow, isMiddle, isActiveDow) {
     const todayMark = isTodayDow ? '<span class="ich-dow-today-mark">TODAY</span>' : '';
+    const activeCls = isActiveDow ? ' active-dow' : '';
     if (isMiddle) {
-      return `<div class="ich-dow-block ${cls}">
+      return `<div class="ich-dow-block ${cls}${activeCls}">
         <div class="ich-dow-header"><span class="ich-dow-header-label">${label}</span>${todayMark}</div>
         <div class="ich-middle-sep">▲ 前半</div>
         ${timeGridHtml(sd, false)}
@@ -1389,7 +1396,7 @@ function renderIchiran() {
     const inner = (!sd || sd.type === '公休')
       ? '<div class="ich-dow-kyukyu">公　休</div>'
       : timeGridHtml(sd, false);
-    return `<div class="ich-dow-block ${cls}">
+    return `<div class="ich-dow-block ${cls}${activeCls}">
       <div class="ich-dow-header"><span class="ich-dow-header-label">${label}</span>${todayMark}</div>
       ${inner}
     </div>`;
@@ -1406,14 +1413,25 @@ function renderIchiran() {
     const doyTodayDow = isToday && todayDayType === '土曜';
     const nchTodayDow = isToday && todayDayType === '日祝';
 
+    // このダイヤが次に来る日の曜日を計算
+    const cycle = getCycle();
+    const baseDiaToday = getDiaForDate(today);
+    const diffDays = ((d.dia - baseDiaToday) % cycle + cycle) % cycle;
+    const nextDate = new Date(today);
+    nextDate.setDate(nextDate.getDate() + diffDays);
+    const diaDayType = getDayType(nextDate);
+    const heiActive = diaDayType === '平日';
+    const doyActive = diaDayType === '土曜';
+    const nchActive = diaDayType === '日祝';
+
     const bodyHtml = isKyukyu
       ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#e03a3a;font-weight:700;font-size:16px;padding:6px 0;letter-spacing:0.15em">公　　　休</div></div>`
       : (d.type === '予備')
       ? `<div class="ich-card-body-inner"><div style="text-align:center;color:#3a6e50;font-weight:700;font-size:16px;padding:6px 0">予　　　備</div></div>`
       : `<div class="ich-card-body-inner">
-          ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle)}
-          ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false)}
-          ${dowBlockHtml('日祝', 'nch', d.nch, nchTodayDow, false)}
+          ${dowBlockHtml('平日', 'hei', d.hei, heiTodayDow, isMiddle, heiActive)}
+          ${dowBlockHtml('土曜', 'doy', d.doy, doyTodayDow, false, doyActive)}
+          ${dowBlockHtml('日祝', 'nch', d.nch, nchTodayDow, false, nchActive)}
         </div>`;
 
     cards += `<div class="ich-card${isToday ? ' ich-card-today' : ''}${openDefault ? ' open' : ''}" id="ich-card-${d.dia}" onclick="toggleIchCard(${d.dia})">
